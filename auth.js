@@ -10,7 +10,7 @@ async function login() {
         provider: 'google',
         options: {
             // Ye line sab se zaroori hai taake 404 error na aaye
-            redirectTo: 'https://balijutt59.github.io/last-chain/' 
+            redirectTo: 'https://balijutt59.github.io/last-chain/index.html/' 
         }
     }); 
 }
@@ -18,7 +18,7 @@ async function login() {
 // --- LOGOUT ---
 async function logout() { 
     await _supabase.auth.signOut(); 
-    window.location.href = 'https://balijutt59.github.io/last-chain/'; 
+    window.location.href = 'https://balijutt59.github.io/last-chain/index.html'; 
 }
 
 // --- INITIALIZATION ---
