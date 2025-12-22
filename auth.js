@@ -4,13 +4,14 @@ const _supabase = supabase.createClient(S_URL, S_KEY);
 let user = null;
 
 async function login() { 
-    await _supabase.auth.signInWithOAuth({ 
+    const { error } = await _supabase.auth.signInWithOAuth({ 
         provider: 'google',
         options: {
-            // Hum direct file path use karenge
-            redirectTo: 'https://balijutt59.github.io/last-chain/index.html'
+            // Ye line Supabase ko force karegi ke wo sahi folder mein wapas aaye
+            redirectTo: 'https://balijutt59.github.io/last-chain/index.html' 
         }
     }); 
+    if (error) console.error("Login error:", error.message);
 }
 
 async function logout() { 
