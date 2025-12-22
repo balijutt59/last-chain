@@ -175,7 +175,7 @@
         <div style="padding:60px 40px; font-family:'Syncopate'; font-size:18px; color:var(--neon-main);">LAST CHAIN</div>
         <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
         <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
-        <div style="position:absolute; bottom:50px; left:40px; color:var(--neon-alt); font-weight:bold; font-size:11px; cursor:pointer;" onclick="logout()">[ TERMINATE ]</div>
+        <div style="position:absolute; bottom:50px; left:40px; color:var(--neon-alt); font-weight:bold; font-size:11px; cursor:pointer;" onclick="logout()">[ LOGOUT ]</div>
     </div>
 
     <div id="app-container" class="hidden">
@@ -489,7 +489,7 @@
 
         async function fetchRefCount() {
             const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id);
-            document.getElementById('ref-count').innerText = `${count || 0} NODES`;
+            document.getElementById('ref-count').innerText = `${count || 0} REFFERRALS`;
         }
 
         function copyRefLink() {
