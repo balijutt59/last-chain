@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Chain | Quantum Neural Mesh v2.0</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Mono:wght@400;700&family=Inter:wght@300;600;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <div id="sidebar" class="sidebar">
+        <div style="padding:60px 40px; font-family:'Syncopate'; font-size:18px; color:var(--neon-main);">L.CHAIN</div>
+        <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
+        <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
+        <div style="position:absolute; bottom:50px; left:40px; color:var(--neon-alt); font-weight:bold; font-size:11px; cursor:pointer;" onclick="logout()">[ TERMINATE ]</div>
+    </div>
+
+    <div id="app-container" class="hidden">
+        <header>
+            <div onclick="toggleSidebar()" style="cursor:pointer; font-size:18px; color:var(--neon-main); font-family: 'Syncopate';">[MENU]</div>
+            <div id="page-title" style="margin-left: 40px;">DASHBOARD</div>
+            
+            <div style="margin-left:auto;">
+                <div class="thick-border-box">
+                    <div class="inner-glow-content">
+                        <div class="points-display" style="font-family: 'Space Mono'; font-weight: bold; color: #fff;">
+                            <span id="header-pts" style="font-size: 18px; color: var(--neon-main);">0</span> 
+                            <small style="font-size: 10px; opacity: 0.6; letter-spacing: 2px;">LAST</small>
+                        </div>
+                        <div style="width: 1px; height: 25px; background: rgba(255,255,255,0.1);"></div>
+                        <button id="btn-wallet" class="wallet-btn" onclick="handleWalletClick()">CONNECT</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div id="dashboard-view" class="tab-content">
+                <div class="stats-row">
+                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Daily Streak</p><h2 id="s-val">0d</h2></div></div>
+                    <div class="rotating-border-box box-acw"><div class="inner-content stat-card"><p>Today Points</p><h2 id="t-pts">0</h2></div></div>
+                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Node Level</p><h2>BRONZE</h2></div></div>
+                </div>
+
+                <div class="progress-box">
+                    <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900; color:var(--neon-main); font-family: 'Space Mono';">
+                        <span>NETWORK SYNC PROGRESS</span><span id="p-txt">0/5000</span>
+                    </div>
+                    <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
+                    <div class="rotating-border-box box-cw">
+                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px;">
+                            <p style="margin-bottom:40px; color:var(--neon-main);">HISTORY_LOG</p>
+                            <div id="history-list"></div>
+                        </div>
+                    </div>
+                    <div class="rotating-border-box box-acw">
+                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px;">
+                            <p style="margin-bottom:40px;">LEADERBOARD <span id="my-rank" style="float:right; color:var(--neon-alt);">#--</span></p>
+                            <div id="leaderboard"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tasks-view" class="tab-content hidden">
+                <div class="rotating-border-box box-cw" style="margin-bottom:40px;">
+                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h2 style="font-size: 28px; font-family:'Syncopate';">Daily Check In</h2>
+                            <p id="claim-timer" style="color:var(--neon-main); margin-top:12px; font-family: 'Space Mono'; font-size: 12px;">CONNECT WALLET TO START</p>
+                        </div>
+                        <button id="c-btn" class="btn-claim" onclick="claimDaily()" disabled>LOCKED</button>
+                    </div>
+                </div>
+
+                <div class="rotating-border-box box-acw">
+                    <div class="inner-content stat-card" style="text-align:left;">
+                        <p style="margin-bottom:30px; color:var(--neon-main);">REFERRAL PROTOCOL</p>
+                        <div class="ref-row">
+                            <span>REWARD PER NODE</span>
+                            <span style="color:var(--neon-main); font-family: 'Syncopate'; font-size: 11px;">+200 LAST</span>
+                        </div>
+                        <div class="ref-row">
+                            <span>TOTAL NODES</span>
+                            <span id="ref-count" style="color:var(--neon-alt); font-weight:900; font-family: 'Space Mono';">0 NODES</span>
+                        </div>
+                        <div class="ref-row" style="border:none; padding-top:40px;">
+                            <span style="font-size:11px; color:#555;">INVITE_LINK:</span>
+                            <button class="btn-claim" onclick="copyRefLink()" style="padding:18px 35px; font-size:10px;">COPY LINK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="auth-view" style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+        <h1 class="auth-logo">LAST<br>CHAIN</h1>
+        <button onclick="login()" class="btn-claim" style="margin-top:80px;">CONTINUE WITH GOOGLE</button>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="animations.js"></script>
+    <script src="wallet.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="tasks.js"></script>
+</body>
+</html>
