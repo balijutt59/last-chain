@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Last Chain | Last Belive | Last Chance</title>
+    <title>Last Chain | Quantum Neural Mesh v2.0</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
@@ -172,10 +172,10 @@
     <div id="cursor-outline"></div>
 
     <div id="sidebar" class="sidebar">
-        <div style="padding:60px 40px; font-family:'Syncopate'; font-size:18px; color:var(--neon-main);">LAST CHAIN</div>
+        <div style="padding:60px 40px; font-family:'Syncopate'; font-size:18px; color:var(--neon-main);">L.CHAIN</div>
         <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
         <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
-        <div style="position:absolute; bottom:50px; left:40px; color:var(--neon-alt); font-weight:bold; font-size:11px; cursor:pointer;" onclick="logout()">[ LOGOUT ]</div>
+        <div style="position:absolute; bottom:50px; left:40px; color:var(--neon-alt); font-weight:bold; font-size:11px; cursor:pointer;" onclick="logout()">[ TERMINATE ]</div>
     </div>
 
     <div id="app-container" class="hidden">
@@ -191,7 +191,7 @@
                             <small style="font-size: 10px; opacity: 0.6; letter-spacing: 2px;">LAST</small>
                         </div>
                         <div style="width: 1px; height: 25px; background: rgba(255,255,255,0.1);"></div>
-                        <button id="btn-wallet" class="wallet-btn" onclick="handleWalletClick()">CONNECT WALLET</button>
+                        <button id="btn-wallet" class="wallet-btn" onclick="handleWalletClick()">CONNECT</button>
                     </div>
                 </div>
             </div>
@@ -207,7 +207,7 @@
 
                 <div class="progress-box">
                     <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900; color:var(--neon-main); font-family: 'Space Mono';">
-                        <span>LAST PROGRESS</span><span id="p-txt">0/5000</span>
+                        <span>NETWORK SYNC PROGRESS</span><span id="p-txt">0/5000</span>
                     </div>
                     <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
                 </div>
@@ -215,7 +215,7 @@
                 <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
                     <div class="rotating-border-box box-cw">
                         <div class="inner-content stat-card" style="text-align:left; min-height: 400px;">
-                            <p style="margin-bottom:40px; color:var(--neon-main);">HISTORY</p>
+                            <p style="margin-bottom:40px; color:var(--neon-main);">HISTORY_LOG</p>
                             <div id="history-list"></div>
                         </div>
                     </div>
@@ -241,17 +241,17 @@
 
                 <div class="rotating-border-box box-acw">
                     <div class="inner-content stat-card" style="text-align:left;">
-                        <p style="margin-bottom:30px; color:var(--neon-main);">REFERRALS</p>
+                        <p style="margin-bottom:30px; color:var(--neon-main);">REFERRAL PROTOCOL</p>
                         <div class="ref-row">
-                            <span>REWARD PER REFERRAL</span>
+                            <span>REWARD PER NODE</span>
                             <span style="color:var(--neon-main); font-family: 'Syncopate'; font-size: 11px;">+200 LAST</span>
                         </div>
                         <div class="ref-row">
-                            <span>TOTAL REFERRALS</span>
+                            <span>TOTAL NODES</span>
                             <span id="ref-count" style="color:var(--neon-alt); font-weight:900; font-family: 'Space Mono';">0 NODES</span>
                         </div>
                         <div class="ref-row" style="border:none; padding-top:40px;">
-                            <span style="font-size:11px; color:#555;">INVITATION_LINK:</span>
+                            <span style="font-size:11px; color:#555;">INVITE_LINK:</span>
                             <button class="btn-claim" onclick="copyRefLink()" style="padding:18px 35px; font-size:10px;">COPY LINK</button>
                         </div>
                     </div>
@@ -452,7 +452,7 @@
             }
 
             if (!user.last_checkin) {
-                timerLabel.innerText = "You Can Claim Now";
+                timerLabel.innerText = "SYSTEM READY";
                 btn.disabled = false;
                 btn.innerText = "CLAIM";
                 btn.style.background = "var(--neon-main)";
@@ -462,12 +462,12 @@
             const gap = (new Date(user.last_checkin).getTime() + 86400000) - Date.now();
             if (gap > 0) {
                 const h = Math.floor(gap/3600000), m = Math.floor((gap%3600000)/60000), s = Math.floor((gap%60000)/1000);
-                timerLabel.innerText = `NEXT CLAIMING: ${h}h ${m}m ${s}s`;
+                timerLabel.innerText = `NEXT SYNC: ${h}h ${m}m ${s}s`;
                 btn.disabled = true;
                 btn.innerText = "LOCKED";
                 btn.style.background = "#222";
             } else { 
-                timerLabel.innerText = "You Can Claim Now"; 
+                timerLabel.innerText = "SYSTEM READY"; 
                 btn.disabled = false; 
                 btn.innerText = "CLAIM";
                 btn.style.background = "var(--neon-main)";
@@ -489,7 +489,7 @@
 
         async function fetchRefCount() {
             const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id);
-            document.getElementById('ref-count').innerText = `${count || 0} REFFERRALS`;
+            document.getElementById('ref-count').innerText = `${count || 0} NODES`;
         }
 
         function copyRefLink() {
