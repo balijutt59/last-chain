@@ -10,7 +10,7 @@ async function login() {
         provider: 'google',
         options: {
             // Ye line sab se zaroori hai taake 404 error na aaye
-            redirectTo: 'https://balijutt59.github.io/last-chain/index.html/' 
+            redirectTo: 'https://balijutt59.github.io/last-chain/index.html' 
         }
     }); 
 }
