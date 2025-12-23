@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Last Chain | Quantum Neural Mesh v2.0</title>
+    <title>Last Chain | Official</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Mono:wght@400;700&family=Inter:wght@300;600;900&display=swap" rel="stylesheet">
 
     <style>
@@ -15,6 +16,7 @@
             --neon-alt: #ff007a;
             --bg-deep: #030305;
             --matrix-glow: rgba(0, 255, 204, 0.2);
+            --glass: rgba(255, 255, 255, 0.03);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
@@ -26,6 +28,7 @@
             min-height: 100vh;
         }
 
+        /* UI Particles & Background */
         #particle-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; background: radial-gradient(circle at center, #0a0a12 0%, #030305 100%);
@@ -43,185 +46,192 @@
 
         .hidden { display: none !important; }
 
-        /* DUAL DIRECTION ANIMATIONS */
-        @keyframes rotate-cw {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Animations */
+        @keyframes rotate-cw { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes rotate-acw { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+        @keyframes scanline { 0% { top: -100%; } 100% { top: 100%; } }
+
+        /* Scanners & Effects */
+        .scan-effect {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 255, 204, 0.05), transparent);
+            height: 20%; width: 100%; z-index: 10; pointer-events: none;
+            animation: scanline 8s linear infinite;
         }
-        @keyframes rotate-acw {
-            0% { transform: rotate(360deg); }
-            100% { transform: rotate(0deg); }
+
+        /* Layout Elements */
+        .sidebar { 
+            position: fixed; left: -320px; width: 280px; height: 95vh; top: 2.5vh;
+            background: rgba(5, 5, 10, 0.9); backdrop-filter: blur(40px);
+            border: 1px solid rgba(0, 255, 204, 0.1); border-radius: 30px;
+            transition: 0.6s cubic-bezier(0.8, 0, 0.2, 1); z-index: 2000; margin-left: 20px;
         }
+        .sidebar.active { left: 0; box-shadow: 0 0 50px rgba(0, 255, 204, 0.1); }
+
+        .menu-item { 
+            padding: 22px 30px; margin: 8px 15px; border-radius: 12px; 
+            font-family: 'Syncopate'; font-size: 10px; color: #555; letter-spacing: 2px;
+            transition: 0.3s; cursor: pointer; border-left: 0px solid var(--neon-main);
+        }
+        .menu-item:hover, .active-tab { 
+            color: #fff; background: rgba(0, 255, 204, 0.05); 
+            border-left: 4px solid var(--neon-main);
+        }
+
+        header { display: flex; align-items: center; padding: 40px 60px; background: transparent; z-index: 1000; }
+        #page-title { font-family: 'Syncopate'; font-size: 12px; color: var(--neon-main); letter-spacing: 6px; text-transform: uppercase; }
 
         .thick-border-box {
-            position: relative;
-            padding: 3px;
-            overflow: hidden;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+            position: relative; padding: 3px; overflow: hidden; border-radius: 18px;
+            background: rgba(255, 255, 255, 0.05);
         }
-
         .thick-border-box::before {
-            content: '';
-            position: absolute;
-            width: 250%;
-            height: 250%;
-            background: conic-gradient(transparent, transparent, var(--neon-main), transparent, var(--neon-main));
-            top: -75%;
-            left: -75%;
-            animation: rotate-cw 3s linear infinite; /* Clockwise Header */
+            content: ''; position: absolute; width: 200%; height: 200%;
+            background: conic-gradient(transparent, var(--neon-main), transparent, var(--neon-main));
+            top: -50%; left: -50%; animation: rotate-cw 4s linear infinite;
         }
 
         .inner-glow-content {
-            position: relative;
-            background: #08080a;
-            padding: 12px 25px;
-            border-radius: 15px;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            gap: 20px;
+            position: relative; background: #08080a; padding: 12px 25px;
+            border-radius: 15px; z-index: 1; display: flex; align-items: center; gap: 20px;
         }
 
-        .sidebar { 
-            position: fixed; left: -300px; width: 280px; height: 95vh; top: 2.5vh;
-            background: rgba(5, 5, 10, 0.85); backdrop-filter: blur(50px);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 30px;
-            transition: 0.8s cubic-bezier(0.8, 0, 0.2, 1); z-index: 1100; margin-left: 20px;
+        .wallet-btn { 
+            background: var(--neon-main); color: #000; padding: 10px 22px; 
+            border-radius: 8px; font-weight: 900; border: none; font-size: 10px; 
+            transition: 0.3s; cursor: pointer; font-family: 'Syncopate';
         }
-        .sidebar.active { left: 0; box-shadow: 0 0 50px rgba(0, 255, 204, 0.15); }
 
-        .menu-item { 
-            padding: 25px 35px; margin: 10px; border-radius: 15px; 
-            font-family: 'Syncopate'; font-size: 10px; color: #444; letter-spacing: 3px;
-            transition: 0.4s; position: relative; overflow: hidden;
-            cursor: pointer;
-        }
-        .menu-item:hover, .active-tab { color: #fff; background: rgba(0, 255, 204, 0.08); }
-
-        header { display: flex; align-items: center; padding: 40px 60px; background: transparent; z-index: 1000; }
-        #page-title { font-family: 'Syncopate'; font-size: 11px; color: var(--neon-main); letter-spacing: 5px; }
-
-        .wallet-btn { background: var(--neon-main); color: #000; padding: 10px 22px; border-radius: 8px; font-weight: 900; border: none; font-size: 10px; transition: 0.3s; cursor: pointer; font-family: 'Syncopate'; }
-
-        .main-content { padding: 40px 60px; max-width: 1400px; margin: 0 auto; }
-        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 50px; }
-        
+        /* Card Styles */
         .rotating-border-box {
-            position: relative;
-            padding: 2px;
-            overflow: hidden;
-            border-radius: 40px;
-            background: rgba(255, 255, 255, 0.05);
+            position: relative; padding: 1px; overflow: hidden; border-radius: 35px;
+            background: rgba(255, 255, 255, 0.05); transition: 0.4s;
         }
+        .rotating-border-box:hover { transform: translateY(-5px); }
         .rotating-border-box::before {
-            content: '';
-            position: absolute;
-            width: 150%;
-            height: 150%;
+            content: ''; position: absolute; width: 140%; height: 140%;
             background: conic-gradient(transparent, transparent, transparent, var(--neon-main));
-            top: -25%;
-            left: -25%;
+            top: -20%; left: -20%;
         }
-
-        /* Classes for Direction */
-        .box-cw::before { animation: rotate-cw 4s linear infinite; }
-        .box-acw::before { animation: rotate-acw 4s linear infinite; }
+        .box-cw::before { animation: rotate-cw 6s linear infinite; }
+        .box-acw::before { animation: rotate-acw 6s linear infinite; }
 
         .inner-content {
-            position: relative;
-            background: #050505;
-            border-radius: 38px;
-            z-index: 1;
+            position: relative; background: #050505; border-radius: 34px; z-index: 1;
         }
 
-        .stat-card { 
-            background: rgba(15, 15, 25, 0.95); 
-            padding: 50px 40px; border-radius: 38px;
+        .stat-card { padding: 45px 35px; text-align: center; }
+        .stat-card h2 { font-family: 'Space Mono'; font-size: 38px; font-weight: 700; margin-top: 10px; }
+        .stat-card p { font-size: 9px; color: #666; letter-spacing: 3px; font-weight: 900; text-transform: uppercase; }
+
+        /* Referral Page Specifics */
+        .ref-hero {
+            background: linear-gradient(45deg, rgba(0,255,204,0.05), rgba(255,0,122,0.05));
+            border: 1px solid rgba(255,255,255,0.05); padding: 60px; border-radius: 40px;
+            text-align: center; margin-bottom: 40px;
         }
-        .stat-card h2 { font-family: 'Space Mono'; font-size: 42px; font-weight: 700; margin-top: 15px; }
-        .stat-card p { font-size: 10px; color: #555; letter-spacing: 4px; font-weight: 900; text-transform: uppercase; }
+        .ref-link-box {
+            background: #000; border: 1px dashed var(--neon-main); padding: 20px;
+            border-radius: 15px; margin: 30px 0; display: flex; justify-content: space-between;
+            align-items: center; font-family: 'Space Mono'; color: var(--neon-main);
+        }
 
-        .progress-box { background: rgba(255,255,255,0.01); padding: 50px; border-radius: 40px; border: 2px solid var(--neon-main); margin-bottom: 50px; }
-        .bar-bg { background: #000; height: 12px; border-radius: 10px; margin-top: 30px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .bar-fill { height: 100%; background: var(--neon-main); width: 0%; transition: 2.5s ease-out; box-shadow: 0 0 30px var(--neon-main); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .main-content { padding: 20px 60px 60px 60px; max-width: 1400px; margin: 0 auto; }
 
-        .btn-claim { background: #fff; color: #000; padding: 22px 50px; border-radius: 15px; font-weight: 900; border: none; font-size: 12px; letter-spacing: 2px; transition: 0.4s; text-transform: uppercase; cursor: pointer; font-family: 'Syncopate'; }
-        .btn-claim:hover:not(:disabled) { background: var(--neon-main); }
-        .btn-claim:disabled { opacity: 0.5; cursor: not-allowed; background: #222 !important; color: #444 !important; }
+        .btn-claim { 
+            background: #fff; color: #000; padding: 20px 40px; border-radius: 12px; 
+            font-weight: 900; border: none; font-size: 11px; letter-spacing: 2px; 
+            transition: 0.4s; text-transform: uppercase; cursor: pointer; font-family: 'Syncopate';
+        }
+        .btn-claim:hover:not(:disabled) { background: var(--neon-main); box-shadow: 0 0 20px var(--neon-main); }
+        .btn-claim:disabled { opacity: 0.3; cursor: not-allowed; }
 
+        /* Auth Screen */
         .auth-logo { 
-            font-family: 'Syncopate'; font-size: 12vw; font-weight: 700; color: #fff; 
-            letter-spacing: -10px; line-height: 0.8; text-align: center;
-            background: linear-gradient(to bottom, #fff, var(--neon-main));
+            font-family: 'Syncopate'; font-size: 10vw; font-weight: 900; color: #fff; 
+            letter-spacing: -8px; line-height: 0.85; text-align: center;
+            background: linear-gradient(to bottom, #fff, #333);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        .lb-item {
-            padding: 20px; background: rgba(255,255,255,0.02); margin-bottom: 12px; 
-            border-radius: 20px; display: flex; justify-content: space-between; 
-            font-family: 'Space Mono'; font-size: 13px;
+        /* Leaderboard & History */
+        .list-item {
+            padding: 18px; background: rgba(255,255,255,0.01); border-bottom: 1px solid rgba(255,255,255,0.03);
+            display: flex; justify-content: space-between; font-family: 'Space Mono'; font-size: 12px;
         }
+
+        /* Progress Bar */
+        .progress-container { margin: 40px 0; }
+        .bar-bg { background: #000; height: 10px; border-radius: 20px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--neon-main); width: 0%; transition: 2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 20px var(--neon-main); }
     </style>
 </head>
 <body>
 
+    <div class="scan-effect"></div>
     <canvas id="particle-canvas"></canvas>
     <div id="cursor-dot"></div>
     <div id="cursor-outline"></div>
 
     <div id="sidebar" class="sidebar">
-        <div style="padding:60px 40px; font-family:'Syncopate'; font-size:18px; color:var(--neon-main);">L.CHAIN</div>
-        <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
-        <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
-        <div style="position:absolute; bottom:50px; left:40px; color:var(--neon-alt); font-weight:bold; font-size:11px; cursor:pointer;" onclick="logout()">[ TERMINATE ]</div>
+        <div style="padding:50px 35px; font-family:'Syncopate'; font-size:20px; color:var(--neon-main); letter-spacing:2px;">LAST<br><span style="color:#fff">CHAIN</span></div>
+        
+        <div class="menu-item active-tab" id="m-dash" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
+        <div class="menu-item" id="m-mission" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
+        <div class="menu-item" id="m-ref" onclick="switchTab('referral-view', 'REFERRAL PROTOCOL')">REFERRALS</div>
+        <div class="menu-item" onclick="alert('System secure. No updates.')">PRE-SALE</div>
+
+        <div style="position:absolute; bottom:40px; left:35px; color:var(--neon-alt); font-weight:bold; font-size:10px; cursor:pointer; font-family:'Syncopate';" onclick="logout()">[ TERMINATE_SESSION ]</div>
     </div>
 
     <div id="app-container" class="hidden">
         <header>
-            <div onclick="toggleSidebar()" style="cursor:pointer; font-size:18px; color:var(--neon-main); font-family: 'Syncopate';">[MENU]</div>
+            <div onclick="toggleSidebar()" style="cursor:pointer; font-family: 'Syncopate'; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 10px; background: rgba(255,255,255,0.02);">MENU</div>
             <div id="page-title" style="margin-left: 40px;">DASHBOARD</div>
             
             <div style="margin-left:auto;">
                 <div class="thick-border-box">
                     <div class="inner-glow-content">
-                        <div class="points-display" style="font-family: 'Space Mono'; font-weight: bold; color: #fff;">
-                            <span id="header-pts" style="font-size: 18px; color: var(--neon-main);">0</span> 
-                            <small style="font-size: 10px; opacity: 0.6; letter-spacing: 2px;">LAST</small>
+                        <div style="font-family: 'Space Mono';">
+                            <span id="header-pts" style="font-size: 20px; color: var(--neon-main); font-weight: 900;">0</span> 
+                            <small style="font-size: 9px; opacity: 0.5; letter-spacing: 2px;">LAST</small>
                         </div>
-                        <div style="width: 1px; height: 25px; background: rgba(255,255,255,0.1);"></div>
-                        <button id="btn-wallet" class="wallet-btn" onclick="handleWalletClick()">CONNECT</button>
+                        <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.1);"></div>
+                        <button id="btn-wallet" class="wallet-btn" onclick="handleWalletClick()">CONNECT WALLET</button>
                     </div>
                 </div>
             </div>
         </header>
 
         <main class="main-content">
+            
             <div id="dashboard-view" class="tab-content">
-                <div class="stats-row">
-                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Daily Streak</p><h2 id="s-val">0d</h2></div></div>
-                    <div class="rotating-border-box box-acw"><div class="inner-content stat-card"><p>Today Points</p><h2 id="t-pts">0</h2></div></div>
-                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Node Level</p><h2>BRONZE</h2></div></div>
+                <div class="grid-2" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 40px;">
+                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Uptime Streak</p><h2 id="s-val">0d</h2></div></div>
+                    <div class="rotating-border-box box-acw"><div class="inner-content stat-card"><p>Daily Points</p><h2 id="t-pts">0</h2></div></div>
+                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Your Level</p><h2>VOID</h2></div></div>
                 </div>
 
-                <div class="progress-box">
-                    <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900; color:var(--neon-main); font-family: 'Space Mono';">
-                        <span>NETWORK SYNC PROGRESS</span><span id="p-txt">0/5000</span>
+                <div class="rotating-border-box box-cw" style="margin-bottom: 40px; border-radius: 20px;">
+                    <div class="inner-content" style="padding: 40px; border-radius: 19px;">
+                        <div style="display:flex; justify-content:space-between; font-size:10px; font-family:'Syncopate'; color:var(--neon-main);">
+                            <span>Progress with LAST...</span><span id="p-txt">0/5000</span>
+                        </div>
+                        <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
                     </div>
-                    <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
                 </div>
 
-                <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
+                <div class="grid-2">
                     <div class="rotating-border-box box-cw">
-                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px;">
-                            <p style="margin-bottom:40px; color:var(--neon-main);">HISTORY_LOG</p>
+                        <div class="inner-content stat-card" style="text-align:left; min-height: 350px;">
+                            <p style="color:var(--neon-main); margin-bottom: 30px;">History</p>
                             <div id="history-list"></div>
                         </div>
                     </div>
                     <div class="rotating-border-box box-acw">
-                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px;">
-                            <p style="margin-bottom:40px;">LEADERBOARD <span id="my-rank" style="float:right; color:var(--neon-alt);">#--</span></p>
+                        <div class="inner-content stat-card" style="text-align:left; min-height: 350px;">
+                            <p style="margin-bottom: 30px;">GLOBAL_LEADERBOARD <span id="my-rank" style="float:right; color:var(--neon-alt);">#--</span></p>
                             <div id="leaderboard"></div>
                         </div>
                     </div>
@@ -229,49 +239,66 @@
             </div>
 
             <div id="tasks-view" class="tab-content hidden">
-                <div class="rotating-border-box box-cw" style="margin-bottom:40px;">
-                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="rotating-border-box box-cw" style="margin-bottom: 30px;">
+                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; text-align: left;">
                         <div>
-                            <h2 style="font-size: 28px; font-family:'Syncopate';">Daily Check In</h2>
-                            <p id="claim-timer" style="color:var(--neon-main); margin-top:12px; font-family: 'Space Mono'; font-size: 12px;">CONNECT WALLET TO START</p>
+                            <h2 style="font-size: 24px; font-family:'Syncopate'; margin:0;">Daily Check-In</h2>
+                            <p id="claim-timer" style="color:var(--neon-main); margin-top:10px; font-family:'Space Mono';">CHECKING SYSTEM...</p>
                         </div>
                         <button id="c-btn" class="btn-claim" onclick="claimDaily()" disabled>LOCKED</button>
                     </div>
                 </div>
+                
+                <div class="grid-2">
+                    <div class="rotating-border-box box-acw"><div class="inner-content stat-card" style="opacity: 0.5;"><p>Twitter / X</p><h3>STAY TUNED</h3></div></div>
+                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card" style="opacity: 0.5;"><p>Discord</p><h3>STAY TUNED</h3></div></div>
+                </div>
+            </div>
 
-                <div class="rotating-border-box box-acw">
-                    <div class="inner-content stat-card" style="text-align:left;">
-                        <p style="margin-bottom:30px; color:var(--neon-main);">REFERRAL PROTOCOL</p>
-                        <div class="ref-row">
-                            <span>REWARD PER NODE</span>
-                            <span style="color:var(--neon-main); font-family: 'Syncopate'; font-size: 11px;">+200 LAST</span>
+            <div id="referral-view" class="tab-content hidden">
+                <div class="ref-hero">
+                    <h1 style="font-family:'Syncopate'; font-size:35px; margin-bottom:15px;">Earn LAST with Invitation</h1>
+                    <p style="font-family:'Space Mono'; color:#888; letter-spacing:1px;">Earn 200 LAST tokens for every new Ref connected via your link.</p>
+                    
+                    <div class="ref-link-box">
+                        <span id="ref-url">CONNECT WALLET TO GENERATE LINK</span>
+                        <button class="btn-claim" onclick="copyRefLink()" style="padding:10px 20px; font-size:10px;">COPY</button>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="rotating-border-box box-cw">
+                        <div class="inner-content stat-card">
+                            <p>Total Referred</p>
+                            <h2 id="ref-count" style="color:var(--neon-alt);">0</h2>
                         </div>
-                        <div class="ref-row">
-                            <span>TOTAL NODES</span>
-                            <span id="ref-count" style="color:var(--neon-alt); font-weight:900; font-family: 'Space Mono';">0 NODES</span>
-                        </div>
-                        <div class="ref-row" style="border:none; padding-top:40px;">
-                            <span style="font-size:11px; color:#555;">INVITE_LINK:</span>
-                            <button class="btn-claim" onclick="copyRefLink()" style="padding:18px 35px; font-size:10px;">COPY LINK</button>
+                    </div>
+                    <div class="rotating-border-box box-acw">
+                        <div class="inner-content stat-card">
+                            <p>Total Referral Rewards</p>
+                            <h2 id="ref-rewards">0</h2>
                         </div>
                     </div>
                 </div>
             </div>
+
         </main>
     </div>
 
-    <div id="auth-view" style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+    <div id="auth-view" style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; z-index:100;">
         <h1 class="auth-logo">LAST<br>CHAIN</h1>
-        <button onclick="login()" class="btn-claim" style="margin-top:80px;">CONTINUE WITH GOOGLE</button>
+        <p style="font-family:'Space Mono'; letter-spacing:5px; color:var(--neon-main); margin-top:20px; font-weight:bold;">Backed By Last Foundation | Solana | Web3</p>
+        <button onclick="login()" class="btn-claim" style="margin-top:60px;">CONTINUE WITH GOOGLE</button>
     </div>
 
     <script>
+        // Supabase Config
         const S_URL = "https://pkqpcxqwhzuuooovqkvc.supabase.co";
         const S_KEY = "sb_publishable_4nApSgj0pwrInFkUYx14_A_sM2AixLY";
         const _supabase = supabase.createClient(S_URL, S_KEY);
         let user = null;
 
-        /* Particles Animation */
+        // Particle System
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -282,18 +309,21 @@
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2;
-                this.speedX = Math.random() * 1 - 0.5;
-                this.speedY = Math.random() * 1 - 0.5;
+                this.size = Math.random() * 1.5;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
             }
             update() {
                 this.x += this.speedX; this.y += this.speedY;
                 if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width;
                 if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height;
             }
-            draw() { ctx.fillStyle = 'rgba(0, 255, 204, 0.4)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 255, 204, 0.4)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
         }
-        function initParticles() { for (let i = 0; i < 100; i++) particles.push(new Particle()); }
+        function initParticles() { for (let i = 0; i < 120; i++) particles.push(new Particle()); }
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach((p, i) => {
@@ -301,64 +331,23 @@
                 for (let j = i; j < particles.length; j++) {
                     const dx = p.x - particles[j].x; const dy = p.y - particles[j].y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 100) { ctx.strokeStyle = `rgba(0, 255, 204, ${0.15 - dist/700})`; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
+                    if (dist < 100) {
+                        ctx.strokeStyle = `rgba(0, 255, 204, ${0.12 - dist/800})`;
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+                    }
                 }
             });
             requestAnimationFrame(animate);
         }
         initParticles(); animate();
 
-        /* Cursor Movement */
+        // Cursor
         window.addEventListener('mousemove', (e) => { 
-            document.getElementById('cursor-dot').style.left = e.x + 'px'; document.getElementById('cursor-dot').style.top = e.y + 'px';
-            document.getElementById('cursor-outline').style.left = (e.x - 16) + 'px'; document.getElementById('cursor-outline').style.top = (e.y - 16) + 'px';
+            gsap.to('#cursor-dot', { x: e.clientX, y: e.clientY, duration: 0 });
+            gsap.to('#cursor-outline', { x: e.clientX - 16, y: e.clientY - 16, duration: 0.15 });
         });
 
-        /* Wallet Management */
-        async function handleWalletClick() {
-            if (user.wallet_address) {
-                if (confirm("Disconnect Node?")) {
-                    const { error } = await _supabase.from('profiles').update({ wallet_address: null }).eq('id', user.id);
-                    if (!error) { user.wallet_address = null; updateUI(); }
-                }
-                return;
-            }
-
-            if (window.ethereum) {
-                try {
-                    const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    const accounts = await provider.send("eth_requestAccounts", []);
-                    const address = accounts[0];
-                    
-                    const b = document.getElementById('btn-wallet');
-                    b.innerText = "CONFIRMING...";
-                    b.style.background = "#fff";
-
-                    try {
-                        const signer = provider.getSigner();
-                        const message = `LAST CHAIN AUTH\n\nVerify Node: ${address}\nAction: Sync System`;
-                        const signature = await signer.signMessage(message);
-
-                        if (signature) {
-                            const { error } = await _supabase.from('profiles').update({ wallet_address: address }).eq('id', user.id);
-                            if (!error) { 
-                                user.wallet_address = address; 
-                                updateUI(); 
-                                alert("Node Verified Successfully!"); 
-                            }
-                        }
-                    } catch (signErr) {
-                        alert("Confirmation rejected.");
-                        updateUI();
-                    }
-                } catch (connErr) {
-                    alert("Connection failed.");
-                }
-            } else { 
-                alert("Please install MetaMask."); 
-            }
-        }
-
+        // Core App Logic
         async function login() { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
         
         async function init() {
@@ -393,120 +382,120 @@
             document.getElementById('app-container').classList.remove('hidden');
             document.getElementById('header-pts').innerText = user.balance;
             document.getElementById('s-val').innerText = (user.streak || 0) + "d";
+            document.getElementById('t-pts').innerText = "CALC...";
             document.getElementById('p-txt').innerText = `${user.balance}/5000`;
             document.getElementById('bar').style.width = Math.min((user.balance/5000)*100, 100) + "%";
             
             const b = document.getElementById('btn-wallet');
             if (user.wallet_address) {
-                b.innerText = user.wallet_address.substring(0,4)+"..."+user.wallet_address.slice(-4);
+                b.innerText = user.wallet_address.substring(0,6)+"..."+user.wallet_address.slice(-4);
                 b.style.background = "var(--neon-alt)"; b.style.color = "#fff";
-                checkClaimStatus();
-            } else {
-                b.innerText = "CONNECT"; b.style.background = "var(--neon-main)"; b.style.color = "#000";
+                document.getElementById('ref-url').innerText = `${window.location.origin}?ref=${user.id}`;
             }
+
+            checkClaimStatus();
         }
 
+        // Navigation
+        function switchTab(id, title) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active-tab'));
+            
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('page-title').innerText = title;
+            
+            // Highlight active menu
+            if(id === 'dashboard-view') document.getElementById('m-dash').classList.add('active-tab');
+            if(id === 'tasks-view') document.getElementById('m-mission').classList.add('active-tab');
+            if(id === 'referral-view') document.getElementById('m-ref').classList.add('active-tab');
+
+            toggleSidebar(false);
+        }
+
+        function toggleSidebar(force) {
+            const s = document.getElementById('sidebar');
+            if(force === false) s.classList.remove('active');
+            else s.classList.toggle('active');
+        }
+
+        // Web3 Wallet
+        async function handleWalletClick() {
+            if (user.wallet_address) {
+                if(confirm("DISCONNECT WALLET?")) {
+                    await _supabase.from('profiles').update({ wallet_address: null }).eq('id', user.id);
+                    location.reload();
+                }
+                return;
+            }
+            if (window.ethereum) {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const accounts = await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                const signature = await signer.signMessage("VERIFY_WALLET_ID_" + user.id);
+                if (signature) {
+                    await _supabase.from('profiles').update({ wallet_address: accounts[0] }).eq('id', user.id);
+                    user.wallet_address = accounts[0]; updateUI();
+                }
+            } else { alert("Please install MetaMask"); }
+        }
+
+        // Daily Claims
         async function claimDaily() {
             const { error } = await _supabase.from('profiles').update({ 
-                balance: user.balance + 100, 
-                streak: (user.streak || 0) + 1, 
-                last_checkin: new Date().toISOString() 
+                balance: user.balance + 100, streak: (user.streak || 0) + 1, last_checkin: new Date().toISOString() 
             }).eq('id', user.id);
-            
             if(!error) {
-                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]);
-                fetchUser(user.id); fetchHistory();
+                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Pulse Sync', points: 100 }]);
+                location.reload();
             }
         }
 
         function checkClaimStatus() {
             const btn = document.getElementById('c-btn');
-            if (!user.wallet_address) {
-                btn.disabled = true;
-                btn.innerText = "LOCKED";
-                return;
-            }
-            if (!user.last_checkin) { 
-                btn.disabled = false; 
-                btn.innerText = "CLAIM";
-                btn.style.background = "var(--neon-main)";
-                return; 
-            }
+            if (!user.wallet_address) return;
+            if (!user.last_checkin) { btn.disabled = false; btn.innerText = "CLAIM NOW"; return; }
             const diff = Date.now() - new Date(user.last_checkin).getTime();
-            const isAvailable = diff >= 86400000;
-            
-            btn.disabled = !isAvailable;
-            btn.innerText = isAvailable ? "CLAIM" : "LOCKED";
-            btn.style.background = isAvailable ? "var(--neon-main)" : "#222";
+            if (diff >= 86400000) { btn.disabled = false; btn.innerText = "CLAIM NOW"; }
         }
 
         function updateCountdown() {
-            const timerLabel = document.getElementById('claim-timer');
-            const btn = document.getElementById('c-btn');
-
-            if (!user) return;
-
-            if (!user.wallet_address) {
-                timerLabel.innerText = "CONNECT WALLET TO START";
-                return;
-            }
-
-            if (!user.last_checkin) {
-                timerLabel.innerText = "SYSTEM READY";
-                btn.disabled = false;
-                btn.innerText = "CLAIM";
-                btn.style.background = "var(--neon-main)";
-                return;
-            }
-
+            if (!user || !user.last_checkin || !user.wallet_address) return;
             const gap = (new Date(user.last_checkin).getTime() + 86400000) - Date.now();
+            const label = document.getElementById('claim-timer');
             if (gap > 0) {
                 const h = Math.floor(gap/3600000), m = Math.floor((gap%3600000)/60000), s = Math.floor((gap%60000)/1000);
-                timerLabel.innerText = `NEXT SYNC: ${h}h ${m}m ${s}s`;
-                btn.disabled = true;
-                btn.innerText = "LOCKED";
-                btn.style.background = "#222";
-            } else { 
-                timerLabel.innerText = "SYSTEM READY"; 
-                btn.disabled = false; 
-                btn.innerText = "CLAIM";
-                btn.style.background = "var(--neon-main)";
-            }
+                label.innerText = `NEXT CLAIMING IN: ${h}h ${m}m ${s}s`;
+            } else { label.innerText = "SYSTEM READY FOR CLAIM"; }
         }
 
         async function fetchHistory() {
             const { data } = await _supabase.from('task_history').select('*').eq('user_id', user.id).order('completed_at', { ascending: false });
             let tPts = 0; const today = new Date().toDateString();
             document.getElementById('history-list').innerHTML = data?.map(h => {
-                const d = new Date(h.completed_at); if (d.toDateString() === today) tPts += h.points;
-                return `<div style="display:flex; justify-content:space-between; padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.02); font-size:11px; font-family:'Space Mono';">
-                    <span><b>${h.task_name}</b><br><small style="color:#444">${d.toLocaleDateString()}</small></span>
-                    <span style="color:var(--neon-main);">+${h.points}</span>
-                </div>`;
-            }).join('') || 'No records.';
+                if (new Date(h.completed_at).toDateString() === today) tPts += h.points;
+                return `<div class="list-item"><span>${h.task_name}</span><span style="color:var(--neon-main)">+${h.points}</span></div>`;
+            }).join('') || 'NO DATA';
             document.getElementById('t-pts').innerText = tPts;
         }
 
         async function fetchRefCount() {
             const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id);
-            document.getElementById('ref-count').innerText = `${count || 0} NODES`;
-        }
-
-        function copyRefLink() {
-            const link = `${window.location.origin}${window.location.pathname}?ref=${user.id}`;
-            navigator.clipboard.writeText(link); alert("Link Copied!");
+            document.getElementById('ref-count').innerText = count || 0;
+            document.getElementById('ref-rewards').innerText = (count || 0) * 200;
         }
 
         async function fetchLeaderboard() {
             const { data } = await _supabase.from('profiles').select('id, balance').order('balance', { ascending: false }).limit(5);
-            document.getElementById('leaderboard').innerHTML = data.map(u => `<div class="lb-item" style="${u.id===user.id?'border:1px solid var(--neon-main)':''}"><span>NODE_${u.id.slice(-5)}</span><b>${u.balance}</b></div>`).join('');
-            const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).gt('balance', user.balance);
-            document.getElementById('my-rank').innerText = `#${(count || 0) + 1}`;
+            document.getElementById('leaderboard').innerHTML = data.map(u => `<div class="list-item" style="${u.id===user.id?'color:var(--neon-main)':''}"><span>NODE_${u.id.slice(-5)}</span><b>${u.balance}</b></div>`).join('');
         }
 
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-        function switchTab(id, title) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); document.getElementById('page-title').innerText=title; toggleSidebar(); }
-        async function logout() { await _supabase.auth.signOut(); window.location.reload(); }
+        function copyRefLink() {
+            if(!user.wallet_address) { alert("Connect wallet first!"); return; }
+            const link = document.getElementById('ref-url').innerText;
+            navigator.clipboard.writeText(link); alert("COPIED TO CLIPBOARD");
+        }
+
+        async function logout() { await _supabase.auth.signOut(); location.reload(); }
         window.onload = init;
     </script>
 </body>
