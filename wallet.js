@@ -1,96 +1,125 @@
-/* WALLET MANAGEMENT PROTOCOL v2.0
-   Features: Auto-connect, Signature Verification, Disconnect Logic
-*/
+/* Supabase Configuration */
+const S_URL = "https://pkqpcxqwhzuuooovqkvc.supabase.co";
+const S_KEY = "sb_publishable_4nApSgj0pwrInFkUYx14_A_sM2AixLY";
+const _supabase = supabase.createClient(S_URL, S_KEY);
+let user = null;
 
+/* 1. Wallet Click Handler */
 async function handleWalletClick() {
-    const walletBtn = document.getElementById('btn-wallet');
-
-    // --- DISCONNECT LOGIC ---
-    if (user.wallet_address) {
-        if (confirm("DISCONNECT PROTOCOL: Are you sure you want to decouple this node?")) {
-            try {
-                const { error } = await _supabase
-                    .from('profiles')
-                    .update({ wallet_address: null })
-                    .eq('id', user.id);
-
-                if (!error) {
-                    user.wallet_address = null;
-                    alert("NODE DECOUPLED SUCCESSFULLY");
-                    updateUI();
-                }
-            } catch (err) {
-                console.error("Disconnect failed:", err);
+    // A. Agar wallet pehle se connect hai -> Disconnect flow
+    if (user && user.wallet_address) {
+        if (confirm("Do you want to disconnect this wallet?")) {
+            const { error } = await _supabase.from('profiles').update({ wallet_address: null }).eq('id', user.id);
+            if (!error) {
+                user.wallet_address = null;
+                updateUI();
+                alert("Wallet Disconnected Successfully.");
             }
         }
         return;
     }
 
-    // --- CONNECT LOGIC ---
-    if (typeof window.ethereum !== 'undefined') {
+    // B. Connect Flow
+    if (window.ethereum) {
         try {
-            // 1. Auto-open MetaMask for Account Connection
-            walletBtn.innerText = "OPENING WALLET...";
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             
-            // Ye line wallet ko khud ba khud popup karwati hai
+            // 1. MetaMask popup khud open hoga connect ke liye
             const accounts = await provider.send("eth_requestAccounts", []);
             const address = accounts[0];
 
-            // 2. Request Signature for Verification (Sign-in Option)
-            walletBtn.innerText = "VERIFYING...";
-            walletBtn.style.background = "#fff";
-            walletBtn.style.color = "#000";
+            // UI feedback
+            const b = document.getElementById('btn-wallet');
+            b.innerText = "VERIFYING...";
 
-            const signer = provider.getSigner();
-            const message = `LAST CHAIN SECURITY PROTOCOL\n\nAction: Connect Node\nNode ID: ${user.id}\nWallet: ${address}\n\nClick sign to authenticate.`;
-            
-            // Ye user ko signature (Confirm Sign in) ka option dikhayega
-            const signature = await signer.signMessage(message);
+            // 2. Thori dair baad Sign-in prompt (Signature Verification)
+            setTimeout(async () => {
+                try {
+                    const signer = provider.getSigner();
+                    const message = `LAST CHAIN AUTH\n\nVerify Node: ${address}\nAction: Sync System`;
+                    
+                    // User click karega confirm sign in par
+                    const signature = await signer.signMessage(message);
 
-            if (signature) {
-                // 3. Update Database after successful signature
-                const { error } = await _supabase
-                    .from('profiles')
-                    .update({ wallet_address: address })
-                    .eq('id', user.id);
-
-                if (!error) {
-                    user.wallet_address = address;
-                    updateUI(); // Dashboard par address show ho jayega
-                    alert("NODE AUTHENTICATED: Connection Stable.");
-                } else {
-                    throw error;
+                    if (signature) {
+                        // 3. Database update aur Wallet Address UI par display
+                        const { error } = await _supabase.from('profiles').update({ wallet_address: address }).eq('id', user.id);
+                        if (!error) {
+                            user.wallet_address = address;
+                            updateUI();
+                            alert("Node Verified Successfully!");
+                        }
+                    }
+                } catch (signErr) {
+                    alert("Signature Verification Failed.");
+                    updateUI();
                 }
-            }
-        } catch (err) {
-            console.error("Auth failed:", err);
-            alert("PROTOCOL REJECTED: Connection failed or user cancelled.");
-            updateUI(); // Reset button to CONNECT
+            }, 800); // 0.8 sec delay for smooth experience
+
+        } catch (connErr) {
+            alert("Connection Request Denied.");
         }
     } else {
-        alert("E-WALLET NOT FOUND: Please install MetaMask extension.");
+        alert("Please install MetaMask to continue.");
     }
 }
 
-// UI ko update karne wala function jo button ka text change karta hai
-function updateWalletButtonUI() {
-    const b = document.getElementById('btn-wallet');
-    if (!b) return;
+/* 2. Authentication & Data Initialization */
+async function login() { 
+    await _supabase.auth.signInWithOAuth({ 
+        provider: 'google',
+        options: { redirectTo: window.location.origin + window.location.pathname }
+    }); 
+}
 
-    if (user && user.wallet_address) {
-        // Agar connect hai to address dikhaye (Short format: 0x12...abcd)
-        const addr = user.wallet_address;
-        b.innerText = addr.substring(0, 4) + "..." + addr.slice(-4);
-        b.style.background = "var(--neon-alt)"; // Pinkish Glow
+async function init() {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session) {
+        const params = new URLSearchParams(window.location.search);
+        await fetchUser(session.user.id, params.get('ref'));
+        fetchHistory(); 
+        fetchLeaderboard();
+        setInterval(updateCountdown, 1000);
+    }
+}
+
+async function fetchUser(id, rid) {
+    let { data: p } = await _supabase.from('profiles').select('*').eq('id', id).single();
+    if (!p) {
+        const { data } = await _supabase.from('profiles').insert([{ id, balance: 0, referred_by: rid }]).select().single();
+        p = data;
+    }
+    user = p; updateUI();
+}
+
+/* 3. UI Updater */
+function updateUI() {
+    if (!user) return;
+    document.getElementById('auth-view').classList.add('hidden');
+    document.getElementById('app-container').classList.remove('hidden');
+    document.getElementById('header-pts').innerText = user.balance;
+    
+    // Wallet Button Update
+    const b = document.getElementById('btn-wallet');
+    if (user.wallet_address) {
+        // Connected: Wallet Address dikhayega
+        b.innerText = user.wallet_address.substring(0,5) + "..." + user.wallet_address.slice(-4);
+        b.style.background = "var(--neon-alt)";
         b.style.color = "#fff";
     } else {
-        // Agar connect nahi hai to default button
+        // Disconnected: CONNECT dikhayega
         b.innerText = "CONNECT";
-        b.style.background = "var(--neon-main)"; // Neon Green
+        b.style.background = "var(--neon-main)";
         b.style.color = "#000";
     }
 }
 
-// Purane updateUI function ke andar is naye function ko call karein
-// (Aapke existing updateUI function mein iska logic hona chahiye)
+/* UI Effects & Utilities (Particles etc remains same) */
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+function switchTab(id, title) { 
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); 
+    document.getElementById(id).classList.remove('hidden'); 
+    document.getElementById('page-title').innerText=title; 
+    toggleSidebar(); 
+}
+async function logout() { await _supabase.auth.signOut(); window.location.reload(); }
