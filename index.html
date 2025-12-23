@@ -474,7 +474,7 @@
             document.getElementById('history-list').innerHTML = data?.map(h => {
                 if (new Date(h.completed_at).toDateString() === today) tPts += h.points;
                 return `<div class="list-item"><span>${h.task_name}</span><span style="color:var(--neon-main)">+${h.points}</span></div>`;
-            }).join('') || 'NO DATA';
+            }).join('') || 'COMING SOON';
             document.getElementById('t-pts').innerText = tPts;
         }
 
