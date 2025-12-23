@@ -8,7 +8,7 @@ async function login() {
         provider: 'google',
         options: {
             // Ye line Supabase ko force karegi ke wo sahi folder mein wapas aaye
-            redirectTo: 'https://balijutt59.github.io/last-chain/index.html' 
+            redirectTo: 'http://127.0.0.1:5500/index.html' 
         }
     }); 
     if (error) console.error("Login error:", error.message);
@@ -16,7 +16,7 @@ async function login() {
 
 async function logout() { 
     await _supabase.auth.signOut(); 
-    window.location.href = 'https://balijutt59.github.io/last-chain/index.html'; 
+    window.location.href = 'hhttp://127.0.0.1:5500/index.html'; 
 }
 
 async function init() {
