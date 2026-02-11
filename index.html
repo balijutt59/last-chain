@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Mono:wght@400;700&family=Inter:wght@300;600;900&display=swap" rel="stylesheet">
 
     <style>
-        /* [Aapka original CSS wahi hai] */
         :root { 
             --neon-main: #00ffcc;
             --neon-alt: #ff007a;
@@ -54,7 +53,6 @@
 
         @keyframes rotate-cw { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes rotate-acw { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
-        @keyframes scan { 0% { left: -50px; } 100% { left: 250px; } }
         @keyframes pulse-glow { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         @keyframes glitch-bg { 0% { background: #030305; } 50% { background: #0a0005; } 100% { background: #030305; } }
 
@@ -85,8 +83,9 @@
             position: relative; background: #08080a; padding: 12px 25px; border-radius: 15px; z-index: 1; display: flex; align-items: center; gap: 20px;
         }
 
+        /* Sidebar Update: Width increased from 280px to 320px */
         .sidebar { 
-            position: fixed; left: -320px; width: 280px; height: 95vh; top: 2.5vh;
+            position: fixed; left: -360px; width: 320px; height: 95vh; top: 2.5vh;
             background: rgba(5, 5, 10, 0.95); backdrop-filter: blur(50px);
             border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 30px;
             transition: 0.8s cubic-bezier(0.8, 0, 0.2, 1); z-index: 1100; margin-left: 20px;
@@ -336,14 +335,12 @@
         let user = null;
         let globalRefs = 0;
 
-        // UI Helpers
         function toggleSidebar(e) { e.stopPropagation(); document.getElementById('sidebar').classList.toggle('active'); }
         function handleGlobalClick(e) {
             const sb = document.getElementById('sidebar');
             if (sb.classList.contains('active') && !sb.contains(e.target)) sb.classList.remove('active');
         }
 
-        // Particle Background & Cursor (Aapka original wahi hai)
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -370,7 +367,6 @@
             document.getElementById('cursor-outline').style.left = (e.x-20) + 'px'; document.getElementById('cursor-outline').style.top = (e.y-20) + 'px';
         });
 
-        // APP LOGIC
         async function login() { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
         
         async function init() {
@@ -403,18 +399,16 @@
             document.getElementById('current-streak-val').innerText = user.streak || 0;
             document.getElementById('current-ref-val').innerText = globalRefs;
             
-            // Sync Bar
             document.getElementById('p-txt').innerText = `${user.balance}/5000`;
             document.getElementById('bar').style.width = Math.min((user.balance/5000)*100, 100) + "%";
             
-            // Rank and Archive Logic
             calculateRank();
 
-            // Wallet status
             const wb = document.getElementById('btn-wallet');
             if(user.wallet_address) {
                 wb.innerText = user.wallet_address.slice(0,5)+"..."+user.wallet_address.slice(-4);
                 wb.style.background = "var(--neon-alt)";
+                wb.style.color = "#fff";
             }
         }
 
@@ -427,14 +421,13 @@
                 const hDate = new Date(h.completed_at);
                 if(hDate.toDateString() === today) todaySum += h.points;
                 
-                // One-time task check
                 if(h.task_name === 'Twitter Follow') {
                     document.getElementById('t-claim-btn').disabled = true;
                     document.getElementById('t-status').innerText = "TASK_COMPLETED";
                 }
                 
                 return `<div class="lb-item" style="font-size:12px;"><span>${h.task_name}</span><b style="color:var(--neon-main);">+${h.points}</b></div>`;
-            }).join('');
+            }).join('') || '<p style="color:#555; font-size:12px;">EMPTY_LOG_FILE</p>';
 
             document.getElementById('t-pts').innerText = todaySum;
         }
@@ -449,7 +442,6 @@
             const btn = document.getElementById('c-btn');
             const lbl = document.getElementById('claim-timer');
             
-            // Requirement 1: Wallet connect karon
             if(!user.wallet_address) {
                 lbl.innerText = "PLEASE_CONNECT_WALLET_FIRST";
                 btn.disabled = true;
