@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Last Chain | Quantum Neural Mesh v2.0</title>
+    <title>L a s t  C h a i n | Quantum Neural Mesh v2.0</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
@@ -223,9 +223,7 @@
                     <div class="inner-content stat-card" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
                         <div style="font-size: 60px; filter: drop-shadow(0 0 20px var(--neon-alt)); margin-bottom: 20px;">🔒</div>
                         <h2 style="font-family: 'Syncopate'; font-size: 32px; color: var(--neon-alt); letter-spacing: 10px; margin-bottom: 15px;">COMING SOON</h2>
-                        <p style="color: #666; font-family: 'Space Mono'; max-width: 400px; line-height: 1.6;">
-                            The Quantum Token Presale phase is currently encrypted. Phase 2 synchronization required for access.
-                        </p>
+                        <p style="color: #666; font-family: 'Space Mono'; max-width: 400px;">Quantum Presale Access is Currently Restricted.</p>
                         <div style="width: 250px; height: 2px; background: rgba(255,255,255,0.05); margin-top: 40px; position: relative; overflow: hidden;">
                             <div style="position: absolute; width: 80px; height: 100%; background: var(--neon-main); animation: scan 2s infinite linear;"></div>
                         </div>
@@ -241,26 +239,22 @@
     </div>
 
     <script>
-        // UPDATED URL
+        // NEW UPDATED KEYS
         const S_URL = "https://uulsecmqhhoimctliiis.supabase.co";
-        const S_KEY = "sb_publishable_4nApSgj0pwrInFkUYx14_A_sM2AixLY";
+        const S_KEY = "sb_publishable_vtZfxprXzkY2rMb_uPPNOw_CLov93B3";
         const _supabase = supabase.createClient(S_URL, S_KEY);
         let user = null;
 
-        /* Particles Animation */
+        /* Particles */
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
-
         class Particle {
             constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2;
-                this.speedX = Math.random() * 1 - 0.5;
-                this.speedY = Math.random() * 1 - 0.5;
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5;
             }
             update() {
                 this.x += this.speedX; this.y += this.speedY;
@@ -290,7 +284,7 @@
             document.getElementById('cursor-outline').style.left = (e.x - 16) + 'px'; document.getElementById('cursor-outline').style.top = (e.y - 16) + 'px';
         });
 
-        /* Logic functions exactly as provided */
+        /* App Logic */
         async function handleWalletClick() {
             if (user.wallet_address) {
                 if (confirm("Disconnect Node?")) {
@@ -311,7 +305,7 @@
                         const { error } = await _supabase.from('profiles').update({ wallet_address: address }).eq('id', user.id);
                         if (!error) { user.wallet_address = address; updateUI(); }
                     }
-                } catch (e) { alert("Action Cancelled"); }
+                } catch (e) { alert("Rejected"); }
             } else { alert("Install MetaMask"); }
         }
 
@@ -407,7 +401,6 @@
             document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); 
             document.getElementById(id).classList.remove('hidden'); 
             document.getElementById('page-title').innerText=title; 
-            
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active-tab'));
             const items = document.querySelectorAll('.menu-item');
             items.forEach(item => { if(item.innerText === title) item.classList.add('active-tab'); });
