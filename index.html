@@ -55,6 +55,19 @@
         @keyframes rotate-acw { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
         @keyframes scan { 0% { left: -50px; } 100% { left: 250px; } }
         @keyframes pulse-glow { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        @keyframes glitch-bg { 0% { background: #030305; } 50% { background: #0a0005; } 100% { background: #030305; } }
+
+        /* Badge Styles */
+        .badge-tag {
+            padding: 4px 12px; border-radius: 50px; font-size: 9px; font-family: 'Syncopate';
+            font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-left: 10px;
+            border: 1px solid rgba(255,255,255,0.2); vertical-align: middle;
+        }
+        .rank-ghost { color: var(--neon-main); border-color: var(--neon-main); }
+        .rank-phantom { background: #1a1a1a; color: #00d2ff; border-color: #00d2ff; }
+        .rank-architect { background: #222; color: #ff007a; border-color: #ff007a; }
+        .rank-overlord { background: #000; color: #fff; border-color: #fff; box-shadow: 0 0 10px #fff; }
+        .rank-source { background: #fff; color: #000; animation: pulse-glow 0.5s infinite; }
 
         .thick-border-box {
             position: relative; padding: 3px; overflow: hidden; border-radius: 18px; background: rgba(255, 255, 255, 0.1);
@@ -107,7 +120,7 @@
 
         .inner-content { position: relative; background: #050505; border-radius: 38px; z-index: 1; }
         .stat-card { background: rgba(15, 15, 25, 0.95); padding: 50px 40px; border-radius: 38px; }
-        .stat-card h2 { font-family: 'Space Mono'; font-size: 42px; font-weight: 700; margin-top: 15px; }
+        .stat-card h2 { font-family: 'Space Mono'; font-size: 32px; font-weight: 700; margin-top: 15px; }
         .stat-card p { font-size: 10px; color: #555; letter-spacing: 4px; font-weight: 900; text-transform: uppercase; }
 
         .progress-box { background: rgba(255,255,255,0.01); padding: 50px; border-radius: 40px; border: 2px solid var(--neon-main); margin-bottom: 50px; backdrop-filter: blur(10px); }
@@ -147,7 +160,7 @@
         <div style="padding:60px 40px; font-family:'Syncopate'; font-size:18px; color:var(--neon-main); text-shadow: 0 0 10px var(--neon-main);">L.CHAIN</div>
         <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
         <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
-        <div class="menu-item" onclick="switchTab('tasks-view', 'REFERRAL')">REFERRAL</div>
+        <div class="menu-item" onclick="switchTab('referral-view', 'REFERRAL')">REFERRAL</div>
         <div class="menu-item" onclick="switchTab('presale-view', 'PRE-SALE')">PRE-SALE</div>
         
         <div class="menu-item" onclick="switchTab('secret-view', 'SECRET SOCIETY')" style="color: var(--neon-alt); border-top: 1px solid rgba(255,0,122,0.1); margin-top: 15px;">[ SECRET SOCIETY ]</div>
@@ -179,7 +192,7 @@
                 <div class="stats-row">
                     <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Daily Streak</p><h2 id="s-val">0d</h2></div></div>
                     <div class="rotating-border-box box-acw"><div class="inner-content stat-card"><p>Today Points</p><h2 id="t-pts">0</h2></div></div>
-                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Node Level</p><h2 style="color: var(--neon-main);">BRONZE</h2></div></div>
+                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Node Rank</p><h2 id="rank-display" style="font-size: 20px;">LOADING...</h2></div></div>
                 </div>
 
                 <div class="progress-box">
@@ -234,7 +247,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <div id="referral-view" class="tab-content hidden">
                 <div class="rotating-border-box box-acw">
                     <div class="inner-content stat-card" style="text-align:left; padding: 40px;">
                         <p style="margin-bottom:30px; color:var(--neon-main);">REFERRAL_PROTOCOL_v1.0</p>
@@ -323,6 +338,7 @@
         const S_KEY = "sb_publishable_vtZfxprXzkY2rMb_uPPNOw_CLov93B3";
         const _supabase = supabase.createClient(S_URL, S_KEY);
         let user = null;
+        let globalRefs = 0;
 
         /* Particles Engine */
         const canvas = document.getElementById('particle-canvas');
@@ -404,7 +420,34 @@
                 const { data } = await _supabase.from('profiles').insert([{ id, balance: 0, referred_by: rid }]).select().single();
                 p = data;
             }
-            user = p; updateUI(); fetchRefCount();
+            user = p; 
+            await fetchRefCount();
+            updateUI();
+        }
+
+        function calculateRank() {
+            const pts = user.balance || 0;
+            const refs = globalRefs;
+            const streak = user.streak || 0;
+            
+            let rank = { name: "NEURAL_GHOST", class: "rank-ghost", multi: 1.0 };
+
+            if (pts >= 500000 && refs >= 200 && streak >= 106) {
+                rank = { name: "THE_LAST_SOURCE", class: "rank-source", multi: 5.0 };
+                document.body.style.animation = "glitch-bg 0.5s infinite";
+            } else if (pts >= 100000 && refs >= 50 && streak >= 30) {
+                rank = { name: "SYSTEM_OVERLORD", class: "rank-overlord", multi: 2.5 };
+            } else if (pts >= 15000 && refs >= 7) {
+                rank = { name: "VOID_ARCHITECT", class: "rank-architect", multi: 1.5 };
+            } else if (pts >= 5000 && refs >= 3) {
+                rank = { name: "DATA_PHANTOM", class: "rank-phantom", multi: 1.2 };
+            }
+
+            const rd = document.getElementById('rank-display');
+            if(rd) {
+                rd.innerHTML = `${rank.name} <span class="badge-tag ${rank.class}">${rank.multi}x</span>`;
+            }
+            return rank;
         }
 
         function updateUI() {
@@ -415,6 +458,8 @@
             document.getElementById('p-txt').innerText = `${user.balance}/5000`;
             document.getElementById('bar').style.width = Math.min((user.balance/5000)*100, 100) + "%";
             
+            calculateRank();
+
             if(user.is_society_member) document.body.style.filter = "hue-rotate(280deg) contrast(1.1)";
 
             const b = document.getElementById('btn-wallet');
@@ -480,8 +525,9 @@
 
         async function fetchRefCount() {
             const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id);
-            document.getElementById('ref-count').innerText = `${count || 0} ACTIVE_NODES`;
-            return count || 0;
+            globalRefs = count || 0;
+            document.getElementById('ref-count').innerText = `${globalRefs} ACTIVE_NODES`;
+            return globalRefs;
         }
 
         function copyRefLink() {
@@ -524,7 +570,7 @@
             const items = document.querySelectorAll('.menu-item');
             items.forEach(item => { if(item.innerText.includes(title)) item.classList.add('active-tab'); });
             if(id === 'secret-view') checkSocietyEligibility();
-            if(window.innerWidth < 768) toggleSidebar(); 
+            document.getElementById('sidebar').classList.remove('active');
         }
 
         async function logout() { await _supabase.auth.signOut(); window.location.reload(); }
