@@ -26,6 +26,7 @@
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
             min-height: 100vh;
+            /* Neon Grid Background */
             background-image: 
                 linear-gradient(rgba(0, 255, 204, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 204, 0.05) 1px, transparent 1px);
@@ -35,7 +36,8 @@
 
         #particle-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; background: radial-gradient(circle at center, #0a0a12 0%, #030305 100%);
+            z-index: -1; 
+            background: radial-gradient(circle at center, #0a0a12 0%, #030305 100%);
         }
 
         #cursor-dot {
@@ -54,7 +56,6 @@
         @keyframes rotate-cw { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes rotate-acw { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
         @keyframes pulse-glow { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        @keyframes glitch-bg { 0% { background: #030305; } 50% { background: #0a0005; } 100% { background: #030305; } }
 
         /* Badge Styles */
         .badge-tag {
@@ -83,7 +84,7 @@
             position: relative; background: #08080a; padding: 12px 25px; border-radius: 15px; z-index: 1; display: flex; align-items: center; gap: 20px;
         }
 
-        /* Sidebar Update: Width increased from 280px to 320px */
+        /* Sidebar: 320px Width */
         .sidebar { 
             position: fixed; left: -360px; width: 320px; height: 95vh; top: 2.5vh;
             background: rgba(5, 5, 10, 0.95); backdrop-filter: blur(50px);
@@ -329,44 +330,93 @@
     </div>
 
     <script>
+        // Supabase Config
         const S_URL = "https://uulsecmqhhoimctliiis.supabase.co";
         const S_KEY = "sb_publishable_vtZfxprXzkY2rMb_uPPNOw_CLov93B3";
         const _supabase = supabase.createClient(S_URL, S_KEY);
         let user = null;
         let globalRefs = 0;
 
+        // UI Helpers
         function toggleSidebar(e) { e.stopPropagation(); document.getElementById('sidebar').classList.toggle('active'); }
         function handleGlobalClick(e) {
             const sb = document.getElementById('sidebar');
             if (sb.classList.contains('active') && !sb.contains(e.target)) sb.classList.remove('active');
         }
 
+        /* --- New Particle Mesh System --- */
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
         class Particle {
             constructor() {
-                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2; this.speedX = Math.random() * 0.8 - 0.4; this.speedY = Math.random() * 0.8 - 0.4;
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = Math.random() * 0.8 - 0.4;
+                this.speedY = Math.random() * 0.8 - 0.4;
             }
             update() {
-                this.x += this.speedX; this.y += this.speedY;
-                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
-                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
             }
-            draw() { ctx.fillStyle = 'rgba(0, 255, 204, 0.3)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 255, 204, 0.3)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
-        function initP() { for(let i=0; i<100; i++) particles.push(new Particle()); }
-        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update(); p.draw();}); requestAnimationFrame(anim); }
-        initP(); anim();
 
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 120; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.update();
+                p.draw();
+                for (let j = i; j < particles.length; j++) {
+                    const dx = p.x - particles[j].x;
+                    const dy = p.y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) {
+                        ctx.strokeStyle = `rgba(0, 255, 204, ${0.15 - dist / 800})`;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+        initParticles();
+        animate();
+
+        // Mouse Cursor
         window.addEventListener('mousemove', (e) => { 
             document.getElementById('cursor-dot').style.left = e.x + 'px'; document.getElementById('cursor-dot').style.top = e.y + 'px';
             document.getElementById('cursor-outline').style.left = (e.x-20) + 'px'; document.getElementById('cursor-outline').style.top = (e.y-20) + 'px';
         });
 
+        /* --- App Logic --- */
         async function login() { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
         
         async function init() {
@@ -420,12 +470,10 @@
             document.getElementById('history-list').innerHTML = data.map(h => {
                 const hDate = new Date(h.completed_at);
                 if(hDate.toDateString() === today) todaySum += h.points;
-                
                 if(h.task_name === 'Twitter Follow') {
                     document.getElementById('t-claim-btn').disabled = true;
                     document.getElementById('t-status').innerText = "TASK_COMPLETED";
                 }
-                
                 return `<div class="lb-item" style="font-size:12px;"><span>${h.task_name}</span><b style="color:var(--neon-main);">+${h.points}</b></div>`;
             }).join('') || '<p style="color:#555; font-size:12px;">EMPTY_LOG_FILE</p>';
 
@@ -441,19 +489,16 @@
         function updateCountdown() {
             const btn = document.getElementById('c-btn');
             const lbl = document.getElementById('claim-timer');
-            
             if(!user.wallet_address) {
                 lbl.innerText = "PLEASE_CONNECT_WALLET_FIRST";
                 btn.disabled = true;
                 return;
             }
-
             if(!user.last_checkin) {
                 lbl.innerText = "READY_TO_SYNC";
                 btn.disabled = false;
                 return;
             }
-
             const next = new Date(user.last_checkin).getTime() + 86400000;
             const diff = next - Date.now();
             if(diff > 0) {
@@ -474,7 +519,6 @@
                 streak: (user.streak || 0) + 1, 
                 last_checkin: new Date().toISOString() 
             }).eq('id', user.id);
-            
             if(!error) {
                 await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]);
                 location.reload();
@@ -504,9 +548,7 @@
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 await _supabase.from('profiles').update({ wallet_address: accounts[0] }).eq('id', user.id);
                 location.reload();
-            } else {
-                alert("Please install MetaMask!");
-            }
+            } else { alert("Please install MetaMask!"); }
         }
 
         function calculateRank() {
@@ -514,13 +556,11 @@
             const refs = globalRefs;
             document.querySelectorAll('.archive-card').forEach(c => c.classList.remove('unlocked'));
             document.getElementById('arc-ghost').classList.add('unlocked');
-
             let rank = { name: "NEURAL_GHOST", class: "rank-ghost" };
             if(pts >= 5000 && refs >= 3) { rank = { name: "DATA_PHANTOM", class: "rank-phantom" }; document.getElementById('arc-phantom').classList.add('unlocked'); }
             if(pts >= 15000 && refs >= 7) { rank = { name: "VOID_ARCHITECT", class: "rank-architect" }; document.getElementById('arc-architect').classList.add('unlocked'); }
             if(pts >= 100000 && refs >= 50) { rank = { name: "SYSTEM_OVERLORD", class: "rank-overlord" }; document.getElementById('arc-overlord').classList.add('unlocked'); }
             if(pts >= 500000 && refs >= 200) { rank = { name: "THE_LAST_SOURCE", class: "rank-source" }; document.getElementById('arc-source').classList.add('unlocked'); }
-
             document.getElementById('rank-display').innerHTML = `${rank.name} <span class="badge-tag ${rank.class}">ACTIVE</span>`;
         }
 
