@@ -20,7 +20,6 @@
         
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
         
-        /* Smooth Scroll & Background Grid */
         body { 
             background: var(--bg-deep); 
             color: #fff; 
@@ -31,6 +30,7 @@
                 linear-gradient(rgba(0, 255, 204, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 204, 0.05) 1px, transparent 1px);
             background-size: 50px 50px;
+            transition: filter 1s ease;
         }
 
         #particle-canvas {
@@ -51,7 +51,6 @@
 
         .hidden { display: none !important; }
 
-        /* Animations */
         @keyframes rotate-cw { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes rotate-acw { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
         @keyframes scan { 0% { left: -50px; } 100% { left: 250px; } }
@@ -150,6 +149,9 @@
         <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
         <div class="menu-item" onclick="switchTab('tasks-view', 'REFERRAL')">REFERRAL</div>
         <div class="menu-item" onclick="switchTab('presale-view', 'PRE-SALE')">PRE-SALE</div>
+        
+        <div class="menu-item" onclick="switchTab('secret-view', 'SECRET SOCIETY')" style="color: var(--neon-alt); border-top: 1px solid rgba(255,0,122,0.1); margin-top: 15px;">[ SECRET SOCIETY ]</div>
+        
         <div style="position:absolute; bottom:50px; left:40px; color:var(--neon-alt); font-weight:bold; font-size:11px; cursor:pointer; opacity: 0.6; transition: 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" onclick="logout()">[ TERMINATE_SESSION ]</div>
     </div>
 
@@ -264,6 +266,49 @@
                     </div>
                 </div>
             </div>
+
+            <div id="secret-view" class="tab-content hidden">
+                <div class="rotating-border-box box-acw" style="min-height: 550px;">
+                    <div class="inner-content stat-card" style="text-align:center; min-height: 550px; background: rgba(10,0,5,0.98); border: 1px solid var(--neon-alt);">
+                        
+                        <div id="society-lock-screen">
+                            <div style="font-size: 70px; margin-bottom: 20px; filter: drop-shadow(0 0 15px var(--neon-alt));">👁️</div>
+                            <h2 style="font-family: 'Syncopate'; color: var(--neon-alt); letter-spacing: 10px; font-size: 24px;">ACCESS_DENIED</h2>
+                            
+                            <div style="margin: 35px 0; text-align: left; display: inline-block; font-family: 'Space Mono'; font-size: 13px; line-height: 2;">
+                                <p id="req-streak">❌ STREAK_PROGRESS: <span id="current-streak-val">0</span>/106 DAYS</p>
+                                <p id="req-ref">❌ NEURAL_NETWORK: <span id="current-ref-val">0</span>/106 NODES</p>
+                            </div>
+
+                            <p style="font-size: 10px; color: #444; max-width: 450px; margin: 0 auto; line-height: 1.8; font-family: 'Space Mono';">
+                                SYSTEM_LOG: The Shadow Circle is a restricted neural layer. Penetration requires 106 days of continuous sync OR a network of 106 active nodes.
+                            </p>
+                            
+                            <div id="unlock-container" class="hidden" style="margin-top: 40px; border-top: 1px solid rgba(255,0,122,0.1); padding-top: 30px;">
+                                <p style="color: var(--neon-alt); font-size: 11px; margin-bottom: 20px; font-family: 'Syncopate';">ELIGIBILITY_VERIFIED. FEE: 25,000 LAST</p>
+                                <button class="btn-claim" onclick="attemptUnlock()" style="background: var(--neon-alt); color: #fff; border: none; padding: 20px 50px;">INITIALIZE_DECODING</button>
+                            </div>
+                        </div>
+
+                        <div id="society-content" class="hidden">
+                            <h2 style="font-family: 'Syncopate'; color: var(--neon-alt); font-size: 22px; animation: pulse-glow 1s infinite;">SHADOW_CIRCLE_ACTIVE</h2>
+                            <p style="color: #666; font-size: 11px; margin-top: 10px; font-family: 'Space Mono';">AUTHORIZED_OPERATIVE_ACCESS_GRANTED</p>
+                            
+                            <div style="margin-top: 60px; display: grid; gap: 20px; text-align: left;">
+                                <div class="lb-item" style="border: 1px solid var(--neon-alt); padding: 25px; background: rgba(255,0,122,0.02);">
+                                    <div><b style="color: var(--neon-alt);">[MISSION_X]</b><br><span style="font-size: 11px; opacity: 0.6;">DECRYPT THE FORBIDDEN PROTOCOL</span></div>
+                                    <button class="btn-claim" style="font-size: 10px; padding: 10px 20px; background: #222; color: #ff007a;">LOCKED</button>
+                                </div>
+                                <div class="lb-item" style="border: 1px solid var(--neon-alt); padding: 25px;">
+                                    <div><b style="color: var(--neon-alt);">[MISSION_Y]</b><br><span style="font-size: 11px; opacity: 0.6;">NEURAL_HIJACK_ENGAGED</span></div>
+                                    <button class="btn-claim" style="font-size: 10px; padding: 10px 20px; background: #222; color: #ff007a;">LOCKED</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -274,7 +319,6 @@
     </div>
 
     <script>
-        // CORE CONFIG
         const S_URL = "https://uulsecmqhhoimctliiis.supabase.co";
         const S_KEY = "sb_publishable_vtZfxprXzkY2rMb_uPPNOw_CLov93B3";
         const _supabase = supabase.createClient(S_URL, S_KEY);
@@ -313,13 +357,11 @@
         }
         initParticles(); animate();
 
-        /* Cursor Movement */
         window.addEventListener('mousemove', (e) => { 
             document.getElementById('cursor-dot').style.left = e.x + 'px'; document.getElementById('cursor-dot').style.top = e.y + 'px';
             document.getElementById('cursor-outline').style.left = (e.x - 20) + 'px'; document.getElementById('cursor-outline').style.top = (e.y - 20) + 'px';
         });
 
-        /* System Logic */
         async function handleWalletClick() {
             if (user.wallet_address) {
                 if (confirm("Terminate Node Connection?")) {
@@ -372,6 +414,9 @@
             document.getElementById('s-val').innerText = (user.streak || 0) + "d";
             document.getElementById('p-txt').innerText = `${user.balance}/5000`;
             document.getElementById('bar').style.width = Math.min((user.balance/5000)*100, 100) + "%";
+            
+            if(user.is_society_member) document.body.style.filter = "hue-rotate(280deg) contrast(1.1)";
+
             const b = document.getElementById('btn-wallet');
             if (user.wallet_address) {
                 b.innerText = user.wallet_address.substring(0,4)+"..."+user.wallet_address.slice(-4);
@@ -391,13 +436,9 @@
             }
         }
 
-        /* Twitter Missions */
         function enableTwitterClaim() {
             const btn = document.getElementById('t-claim-btn');
-            btn.disabled = false;
-            btn.style.background = "var(--neon-main)";
-            btn.style.color = "#000";
-            btn.innerText = "CLAIM_500";
+            btn.disabled = false; btn.style.background = "var(--neon-main)"; btn.style.color = "#000"; btn.innerText = "CLAIM_500";
         }
 
         async function claimTwitter() {
@@ -405,8 +446,7 @@
             const { error } = await _supabase.from('profiles').update({ balance: user.balance + 500 }).eq('id', user.id);
             if(!error) {
                 await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 500 }]);
-                alert("Protocol Sync: +500 LAST Credits.");
-                location.reload();
+                alert("Protocol Sync: +500 LAST Credits."); location.reload();
             }
         }
 
@@ -428,9 +468,7 @@
             let tPts = 0; const today = new Date().toDateString();
             document.getElementById('history-list').innerHTML = data?.map(h => {
                 const d = new Date(h.completed_at); if (d.toDateString() === today) tPts += h.points;
-                return `<div style="display:flex; justify-content:space-between; padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.02); font-size:11px; font-family:'Space Mono';">
-                    <span><b>${h.task_name}</b></span><span style="color:var(--neon-main);">+${h.points}</span>
-                </div>`;
+                return `<div style="display:flex; justify-content:space-between; padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.02); font-size:11px; font-family:'Space Mono';"><span><b>${h.task_name}</b></span><span style="color:var(--neon-main);">+${h.points}</span></div>`;
             }).join('') || '<p style="color:#333; font-size:10px;">EMPTY_LOG_FILE</p>';
             document.getElementById('t-pts').innerText = tPts;
         }
@@ -443,6 +481,7 @@
         async function fetchRefCount() {
             const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id);
             document.getElementById('ref-count').innerText = `${count || 0} ACTIVE_NODES`;
+            return count || 0;
         }
 
         function copyRefLink() {
@@ -451,15 +490,43 @@
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+
+        async function checkSocietyEligibility() {
+            if (!user) return;
+            const refCount = await fetchRefCount();
+            const streak = user.streak || 0;
+            document.getElementById('current-streak-val').innerText = streak;
+            document.getElementById('current-ref-val').innerText = refCount;
+            const canUnlock = streak >= 106 || refCount >= 106;
+            if (streak >= 106) document.getElementById('req-streak').style.color = "var(--neon-main)";
+            if (refCount >= 106) document.getElementById('req-ref').style.color = "var(--neon-main)";
+            if (user.is_society_member) {
+                document.getElementById('society-lock-screen').classList.add('hidden');
+                document.getElementById('society-content').classList.remove('hidden');
+            } else if (canUnlock) {
+                document.getElementById('unlock-container').classList.remove('hidden');
+            }
+        }
+
+        async function attemptUnlock() {
+            if (user.balance < 25000) { alert("INSUFFICIENT_FUNDS: 25,000 LAST Points Required."); return; }
+            if (confirm("Spend 25,000 LAST to unlock the Shadow Circle?")) {
+                const { error } = await _supabase.from('profiles').update({ balance: user.balance - 25000, is_society_member: true }).eq('id', user.id);
+                if (!error) { alert("ACCESS GRANTED."); location.reload(); }
+            }
+        }
+
         function switchTab(id, title) { 
             document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); 
             document.getElementById(id).classList.remove('hidden'); 
             document.getElementById('page-title').innerText=title; 
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active-tab'));
             const items = document.querySelectorAll('.menu-item');
-            items.forEach(item => { if(item.innerText === title) item.classList.add('active-tab'); });
+            items.forEach(item => { if(item.innerText.includes(title)) item.classList.add('active-tab'); });
+            if(id === 'secret-view') checkSocietyEligibility();
             if(window.innerWidth < 768) toggleSidebar(); 
         }
+
         async function logout() { await _supabase.auth.signOut(); window.location.reload(); }
         window.onload = init;
     </script>
