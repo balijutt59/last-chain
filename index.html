@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L a s t  C h a i n | Quantum Neural Mesh v2.0</title>
+    <title>Last Chain | Quantum Neural Mesh v2.0</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
@@ -189,13 +189,26 @@
             </div>
 
             <div id="tasks-view" class="tab-content hidden">
-                <div class="rotating-border-box box-cw" style="margin-bottom:40px;">
-                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="rotating-border-box box-cw" style="margin-bottom:20px;">
+                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 30px;">
                         <div>
-                            <h2 style="font-size: 28px; font-family:'Syncopate';">Daily Check In</h2>
-                            <p id="claim-timer" style="color:var(--neon-main); margin-top:12px; font-family: 'Space Mono'; font-size: 12px;">CONNECT WALLET TO START</p>
+                            <h2 style="font-size: 20px; font-family:'Syncopate';">Daily Sync</h2>
+                            <p id="claim-timer" style="color:var(--neon-main); margin-top:8px; font-family: 'Space Mono'; font-size: 11px;">READY</p>
                         </div>
-                        <button id="c-btn" class="btn-claim" onclick="claimDaily()" disabled>LOCKED</button>
+                        <button id="c-btn" class="btn-claim" onclick="claimDaily()" style="padding: 15px 30px;">CLAIM</button>
+                    </div>
+                </div>
+
+                <div class="rotating-border-box box-acw" style="margin-bottom:20px;">
+                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 30px;">
+                        <div>
+                            <h2 style="font-size: 20px; font-family:'Syncopate';">Follow Architect</h2>
+                            <p style="color:#555; margin-top:8px; font-family: 'Space Mono'; font-size: 11px;">REWARD: +500 LAST</p>
+                        </div>
+                        <div style="display:flex; gap: 10px;">
+                            <a href="https://x.com/Aman_ullah56" target="_blank" onclick="enableTwitterClaim()" class="btn-claim" style="text-decoration:none; background:transparent; border:1px solid var(--neon-main); color:var(--neon-main); padding: 15px 20px; display: flex; align-items: center;">GO</a>
+                            <button id="t-claim-btn" class="btn-claim" onclick="claimTwitter()" style="padding: 15px 30px;" disabled>CLAIM</button>
+                        </div>
                     </div>
                 </div>
 
@@ -239,7 +252,6 @@
     </div>
 
     <script>
-        // NEW UPDATED KEYS
         const S_URL = "https://uulsecmqhhoimctliiis.supabase.co";
         const S_KEY = "sb_publishable_vtZfxprXzkY2rMb_uPPNOw_CLov93B3";
         const _supabase = supabase.createClient(S_URL, S_KEY);
@@ -352,6 +364,23 @@
             }).eq('id', user.id);
             if(!error) {
                 await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]);
+                location.reload();
+            }
+        }
+
+        // Twitter Functions
+        function enableTwitterClaim() {
+            document.getElementById('t-claim-btn').disabled = false;
+            document.getElementById('t-claim-btn').style.background = "var(--neon-main)";
+            document.getElementById('t-claim-btn').style.color = "#000";
+        }
+
+        async function claimTwitter() {
+            if (!user) return;
+            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 500 }).eq('id', user.id);
+            if(!error) {
+                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 500 }]);
+                alert("500 LAST Points Added!");
                 location.reload();
             }
         }
