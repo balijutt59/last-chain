@@ -148,6 +148,28 @@
         .archive-card h3 { font-family: 'Syncopate'; font-size: 11px; margin-bottom: 10px; color: var(--neon-main); }
         .archive-card p { font-size: 10px; font-family: 'Space Mono'; color: #888; line-height: 1.4; }
         .archive-card .icon { font-size: 40px; margin-bottom: 15px; display: block; }
+/* Line 151: Purana media query hata kar ye exact paste karein */
+@media (max-width: 768px) {
+    .stats-row { 
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important; 
+        gap: 8px !important; 
+    }
+    .stat-card { 
+        padding: 12px 5px !important; 
+        min-height: 85px !important; 
+        border-radius: 15px !important;
+    }
+    .stat-card h2 { font-size: 13px !important; margin-top: 5px !important; }
+    .stat-card p { font-size: 7px !important; letter-spacing: 0.5px !important; }
+    .responsive-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+    #page-title { font-size: 10px !important; }
+}
+/* Line 171: Iske baad </style> hona chahiye */
     </style>
 </head>
 <body onclick="handleGlobalClick(event)">
@@ -157,18 +179,19 @@
     <div id="cursor-outline"></div>
 
         <div id="sidebar" class="sidebar" style="display: flex; flex-direction: column;">
-        <div style="padding:60px 40px; font-family:'Syncopate'; font-size:20px; color:var(--neon-main); text-shadow: 0 0 10px var(--neon-main);">LAST CHAIN</div>
-        
-        <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
-        <div class="menu-item" onclick="switchTab('archive-view', 'ARCHIVES')">ARCHIVES</div>
-        <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
-        <div class="menu-item" onclick="switchTab('referral-view', 'REFERRAL')">REFERRAL👥</div>
-        <div class="menu-item" onclick="switchTab('presale-view', 'PRE-SALE')">PRE-SALE</div>
-        <div class="menu-item" onclick="switchTab('secret-view', 'SECRET SOCIETY')" style="color: var(--neon-alt);">[ SECRET SOCIETY ]</div>
-        
-        <div style="margin-top: auto; margin-bottom: 30px; padding: 25px 35px; color: var(--neon-alt); font-weight: bold; font-size: 11px; cursor: pointer; text-align: center; border-top: 1px solid rgba(255,0,122,0.1);" onclick="logout()">
-            [ TERMINATE_SESSION ]
-        </div>
+    <div style="padding:60px 40px; font-family:'Syncopate'; font-size:20px; color:var(--neon-main);">LAST CHAIN</div>
+    <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
+    <div class="menu-item" onclick="switchTab('archive-view', 'ARCHIVES')">ARCHIVES</div>
+    <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
+    <div class="menu-item" onclick="switchTab('referral-view', 'REFERRAL')">REFERRAL</div>
+    <div class="menu-item" onclick="switchTab('presale-view', 'PRE-SALE')">PRE-SALE</div>
+    <div class="menu-item" onclick="switchTab('secret-view', 'SECRET SOCIETY')" style="color: var(--neon-alt);">[ SECRET SOCIETY ]</div>
+    
+    <div style="margin-top: auto; margin-bottom: 30px; padding: 25px 35px; color: var(--neon-alt); font-family: 'Syncopate'; font-size: 11px; cursor: pointer; text-align: center; border-top: 1px solid rgba(255,0,122,0.1); font-weight: bold;" onclick="logout()">
+        [ TERMINATE_SESSION ]
+    </div>
+</div>
+    
     </div>
 
     <div id="app-container" class="hidden">
@@ -205,7 +228,7 @@
                     <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
                 </div>
 
-                <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
+                <div class="responsive-grid" style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
                     <div class="rotating-border-box box-cw">
                         <div class="inner-content stat-card" style="text-align:left; min-height: 400px; background: rgba(5,5,5,0.8);">
                             <p style="margin-bottom:40px; color:var(--neon-main); display: flex; align-items: center; gap: 10px; font-size:14px;">
