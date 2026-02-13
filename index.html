@@ -148,34 +148,45 @@
         .archive-card h3 { font-family: 'Syncopate'; font-size: 11px; margin-bottom: 10px; color: var(--neon-main); }
         .archive-card p { font-size: 10px; font-family: 'Space Mono'; color: #888; line-height: 1.4; }
         .archive-card .icon { font-size: 40px; margin-bottom: 15px; display: block; }
-/* Line 151: Purana media query hata kar ye exact paste karein */
-@media (max-width: 768px) {
-    .stats-row { 
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important; 
-        gap: 8px !important; 
-    }
-    .stat-card { 
-        padding: 12px 5px !important; 
-        min-height: 85px !important; 
-        border-radius: 15px !important;
-    }
-    .stat-card h2 { font-size: 13px !important; margin-top: 5px !important; }
-    .stat-card p { font-size: 7px !important; letter-spacing: 0.5px !important; }
-    .responsive-grid {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 10px !important;
-    }
-    #page-title { font-size: 10px !important; }
+#desktop-only-warning {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 999999;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
 }
-/* Line 171: Iske baad </style> hona chahiye */
+
+/* 1024px se choti screen par active hoga */
+@media (max-width: 1024px) {
+    #desktop-only-warning {
+        display: flex !important;
+    }
+    #app-container, header, #auth-view, #particle-canvas, #cursor-dot, #cursor-outline, .sidebar {
+        display: none !important;
+    }
+    body {
+        overflow: hidden !important;
+    }
+}
+
+
     </style>
 </head>
 <body onclick="handleGlobalClick(event)">
+    <div id="desktop-only-warning">
+        <div style="border: 1px solid var(--neon-alt); padding: 40px; border-radius: 20px;">
+            <h1 style="font-family:'Syncopate'; color:var(--neon-alt);">ACCESS_DENIED</h1>
+            <p style="color:#fff; font-family:'Space Mono'; margin-top:10px;">DESKTOP_REQUIRED</p>
+        </div>
+    </div>
 
-    <canvas id="particle-canvas"></canvas>
-    <div id="cursor-dot"></div>
     <div id="cursor-outline"></div>
 
         <div id="sidebar" class="sidebar" style="display: flex; flex-direction: column;">
@@ -222,10 +233,21 @@
                 </div>
 
                 <div class="progress-box">
+                    function checkResolution() {
+    const warning = document.getElementById('desktop-only-warning');
+    if(window.innerWidth <= 1024) {
+        warning.style.display = 'flex';
+    } else {
+        warning.style.display = 'none';
+    }
+}
+                         window.addEventListener('resize', checkResolution);
+                         window.addEventListener('load', checkResolution);
+        
                     <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:900; color:var(--neon-main); font-family: 'Space Mono';">
                         <span>NETWORK SYNC PROGRESS</span><span id="p-txt" style="color:#fff;">0/5000</span>
                     </div>
-                    <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
+                    <div class="bar-bg"><div id="bar" class="bar-fill"></div></div
                 </div>
 
                 <div class="responsive-grid" style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
