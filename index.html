@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Last Chain | Quantum Neural Mesh v2.0</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -21,7 +21,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
         
         body { 
-            background: #000000;
+            background: #000000; /* Full Black */
             color: #fff; 
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
@@ -35,31 +35,19 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
             z-index: 99999;
-            display: none; /* Hidden by default, shown via JS */
+            display: none; 
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 20px;
+            padding: 30px;
         }
-        #mobile-blocker h2 {
-            font-family: 'Syncopate';
-            color: var(--neon-main);
-            font-size: 18px;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-        }
-        #mobile-blocker p {
-            font-family: 'Space Mono';
-            font-size: 12px;
-            color: #888;
-            line-height: 1.6;
-        }
-        .desktop-icon { font-size: 50px; margin-bottom: 20px; display: block; }
+        #mobile-blocker h2 { font-family: 'Syncopate'; color: var(--neon-main); font-size: 20px; margin-bottom: 15px; }
+        #mobile-blocker p { font-family: 'Space Mono'; font-size: 13px; color: #888; line-height: 1.6; }
 
-        /* Media Query to trigger blocker on small screens */
-        @media (max-width: 1024px) {
-            #mobile-blocker { display: flex; }
+        /* Media Query: 900px se niche blocker dikhega, 980px (Desktop Mode) par nahi dikhega */
+        @media (max-width: 900px) {
+            #mobile-blocker { display: flex !important; }
             #app-container, header, #sidebar, #auth-view { display: none !important; }
             * { cursor: default !important; }
         }
@@ -102,11 +90,13 @@
             position: relative; padding: 3px; overflow: hidden; border-radius: 18px; background: rgba(255, 255, 255, 0.1);
             box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
         }
+
         .thick-border-box::before {
             content: ''; position: absolute; width: 250%; height: 250%;
             background: conic-gradient(transparent, transparent, var(--neon-main), transparent, var(--neon-main));
             top: -75%; left: -75%; animation: rotate-cw 3s linear infinite;
         }
+
         .inner-glow-content {
             position: relative; background: #08080a; padding: 12px 25px; border-radius: 15px; z-index: 1; display: flex; align-items: center; gap: 20px;
         }
@@ -141,6 +131,7 @@
             background: conic-gradient(transparent, transparent, transparent, var(--neon-main));
             top: -25%; left: -25%;
         }
+
         .box-cw::before { animation: rotate-cw 4s linear infinite; }
         .box-acw::before { animation: rotate-acw 4s linear infinite; }
 
@@ -179,9 +170,9 @@
 <body onclick="handleGlobalClick(event)">
 
     <div id="mobile-blocker">
-        <span class="desktop-icon">🖥️</span>
-        <h2>SYSTEM RESTRICTED</h2>
-        <p>Access to Last Chain Neural Mesh v2.0 requires a Desktop Interface.<br><br>Please enable <b>"Desktop Site"</b> in your browser settings to establish a secure connection.</p>
+        <div style="font-size: 50px; margin-bottom: 20px;">🖥️</div>
+        <h2>SYSTEM_RESTRICTED</h2>
+        <p>Access requires a desktop-grade interface.<br><br>Please enable <b>"Desktop Site"</b> in your browser settings to establish connection.</p>
     </div>
 
     <canvas id="particle-canvas"></canvas>
@@ -190,19 +181,24 @@
 
     <div id="sidebar" class="sidebar" style="display: flex; flex-direction: column;">
         <div style="padding:60px 40px; font-family:'Syncopate'; font-size:20px; color:var(--neon-main); text-shadow: 0 0 10px var(--neon-main);">LAST CHAIN</div>
+        
         <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
         <div class="menu-item" onclick="switchTab('archive-view', 'ARCHIVES')">ARCHIVES</div>
         <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
         <div class="menu-item" onclick="switchTab('referral-view', 'REFERRAL')">REFERRAL👥</div>
         <div class="menu-item" onclick="switchTab('presale-view', 'PRE-SALE')">PRE-SALE</div>
         <div class="menu-item" onclick="switchTab('secret-view', 'SECRET SOCIETY')" style="color: var(--neon-alt);">[ SECRET SOCIETY ]</div>
-        <div style="margin-top: auto; margin-bottom: 30px; padding: 25px 35px; color: var(--neon-alt); font-weight: bold; font-size: 11px; cursor: pointer; text-align: center; border-top: 1px solid rgba(255,0,122,0.1);" onclick="logout()">[ TERMINATE_SESSION ]</div>
+        
+        <div style="margin-top: auto; margin-bottom: 30px; padding: 25px 35px; color: var(--neon-alt); font-weight: bold; font-size: 11px; cursor: pointer; text-align: center; border-top: 1px solid rgba(255,0,122,0.1);" onclick="logout()">
+            [ TERMINATE_SESSION ]
+        </div>
     </div>
 
     <div id="app-container" class="hidden">
         <header>
             <div id="menu-btn" onclick="toggleSidebar(event)" style="cursor:pointer; font-size:20px; color:var(--neon-main); font-family: 'Syncopate'; animation: pulse-glow 2s infinite;">[MENU]</div>
             <div id="page-title" style="margin-left: 40px;">DASHBOARD</div>
+            
             <div style="margin-left:auto;">
                 <div class="thick-border-box">
                     <div class="inner-glow-content">
@@ -259,12 +255,33 @@
                     <div class="inner-content stat-card" style="min-height: 600px; text-align: left;">
                         <h2 style="font-family:'Syncopate'; font-size: 24px; margin-bottom: 10px;">NEURAL_ARCHIVES</h2>
                         <p style="color:var(--neon-main); font-family:'Space Mono'; margin-bottom: 40px; font-size:13px;">Unlocked nodes represent your permanent status in the mesh.</p>
+                        
                         <div class="archive-grid">
-                            <div id="arc-ghost" class="archive-card"><span class="icon">👻</span><h3>NEURAL_GHOST</h3><p>Entry level node. System connection established.</p></div>
-                            <div id="arc-phantom" class="archive-card"><span class="icon">👽</span><h3>DATA_PHANTOM</h3><p>Requirement: 5,000 LAST Points + 3 Nodes.</p></div>
-                            <div id="arc-architect" class="archive-card"><span class="icon">💠</span><h3>VOID_ARCHITECT</h3><p>Requirement: 15,000 LAST Points + 7 Nodes.</p></div>
-                            <div id="arc-overlord" class="archive-card"><span class="icon">🗽</span><h3>SYSTEM_OVERLORD</h3><p>Requirement: 100,000 LAST Points + 50 Nodes.</p></div>
-                            <div id="arc-source" class="archive-card"><span class="icon">👑</span><h3>THE_LAST_SOURCE</h3><p>The ultimate layer. 500,000 LAST + 200 Nodes.</p></div>
+                            <div id="arc-ghost" class="archive-card">
+                                <span class="icon">👻</span>
+                                <h3>NEURAL_GHOST</h3>
+                                <p>Entry level node. System connection established.</p>
+                            </div>
+                            <div id="arc-phantom" class="archive-card">
+                                <span class="icon">👽</span>
+                                <h3>DATA_PHANTOM</h3>
+                                <p>Requirement: 5,000 LAST Points + 3 Nodes.</p>
+                            </div>
+                            <div id="arc-architect" class="archive-card">
+                                <span class="icon">💠</span>
+                                <h3>VOID_ARCHITECT</h3>
+                                <p>Requirement: 15,000 LAST Points + 7 Nodes.</p>
+                            </div>
+                            <div id="arc-overlord" class="archive-card">
+                                <span class="icon">🗽</span>
+                                <h3>SYSTEM_OVERLORD</h3>
+                                <p>Requirement: 100,000 LAST Points + 50 Nodes.</p>
+                            </div>
+                            <div id="arc-source" class="archive-card">
+                                <span class="icon">👑</span>
+                                <h3>THE_LAST_SOURCE</h3>
+                                <p>The ultimate layer. 500,000 LAST + 200 Nodes.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -280,6 +297,7 @@
                         <button id="c-btn" class="btn-claim" onclick="claimDaily()" style="padding: 18px 45px;">CLAIM</button>
                     </div>
                 </div>
+
                 <div class="rotating-border-box box-acw" style="margin-bottom:20px;">
                     <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 40px;">
                         <div>
@@ -350,11 +368,15 @@
             if (sb.classList.contains('active') && !sb.contains(e.target)) sb.classList.remove('active');
         }
 
-        /* --- Particles Logic --- */
+        /* --- Particle System --- */
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
         window.addEventListener('resize', resize);
         resize();
 
@@ -367,44 +389,59 @@
                 this.speedY = Math.random() * 1.2 - 0.6;
             }
             update() {
-                this.x += this.speedX; this.y += this.speedY;
-                if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width;
-                if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height;
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
             }
             draw() {
                 ctx.fillStyle = 'rgba(0, 255, 204, 0.4)';
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
+
         function initParticles() {
             particles = [];
             const count = (canvas.width * canvas.height) / 10000;
-            for (let i = 0; i < Math.max(count, 150); i++) particles.push(new Particle());
+            for (let i = 0; i < Math.max(count, 150); i++) {
+                particles.push(new Particle());
+            }
         }
+
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach((p, i) => {
-                p.update(); p.draw();
+                p.update();
+                p.draw();
                 for (let j = i; j < particles.length; j++) {
-                    const dx = p.x - particles[j].x; const dy = p.y - particles[j].y;
+                    const dx = p.x - particles[j].x;
+                    const dy = p.y - particles[j].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < 150) {
                         ctx.strokeStyle = `rgba(0, 255, 204, ${0.2 - dist / 750})`;
-                        ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+                        ctx.lineWidth = 0.8;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
                     }
                 }
             });
             requestAnimationFrame(animate);
         }
-        initParticles(); animate();
+        initParticles();
+        animate();
 
         window.addEventListener('mousemove', (e) => { 
             document.getElementById('cursor-dot').style.left = e.x + 'px'; document.getElementById('cursor-dot').style.top = e.y + 'px';
             document.getElementById('cursor-outline').style.left = (e.x-20) + 'px'; document.getElementById('cursor-outline').style.top = (e.y-20) + 'px';
         });
 
-        /* --- Supabase & UI Logic --- */
+        /* --- Supabase & Logic --- */
         async function login() { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
         
         async function init() {
@@ -412,7 +449,8 @@
             if (session) {
                 const params = new URLSearchParams(window.location.search);
                 await fetchUser(session.user.id, params.get('ref'));
-                fetchHistory(); fetchLeaderboard();
+                fetchHistory(); 
+                fetchLeaderboard();
                 setInterval(updateCountdown, 1000);
             }
         }
@@ -423,7 +461,9 @@
                 const { data } = await _supabase.from('profiles').insert([{ id, balance: 0, referred_by: rid }]).select().single();
                 p = data;
             }
-            user = p; await fetchRefCount(); updateUI();
+            user = p;
+            await fetchRefCount();
+            updateUI();
         }
 
         function updateUI() {
@@ -439,7 +479,8 @@
             const wb = document.getElementById('btn-wallet');
             if(user.wallet_address) {
                 wb.innerText = user.wallet_address.slice(0,5)+"..."+user.wallet_address.slice(-4);
-                wb.style.background = "var(--neon-alt)"; wb.style.color = "#fff";
+                wb.style.background = "var(--neon-alt)";
+                wb.style.color = "#fff";
             }
         }
 
@@ -448,7 +489,8 @@
             const today = new Date().toDateString();
             let todaySum = 0;
             document.getElementById('history-list').innerHTML = data.map(h => {
-                if(new Date(h.completed_at).toDateString() === today) todaySum += h.points;
+                const hDate = new Date(h.completed_at);
+                if(hDate.toDateString() === today) todaySum += h.points;
                 if(h.task_name === 'Twitter Follow') {
                     document.getElementById('t-claim-btn').disabled = true;
                     document.getElementById('t-status').innerText = "TASK_COMPLETED";
@@ -469,39 +511,58 @@
             const lbl = document.getElementById('claim-timer');
             if(!user.wallet_address) { lbl.innerText = "PLEASE_CONNECT_WALLET_FIRST"; btn.disabled = true; return; }
             if(!user.last_checkin) { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; return; }
-            const diff = (new Date(user.last_checkin).getTime() + 86400000) - Date.now();
+            const next = new Date(user.last_checkin).getTime() + 86400000;
+            const diff = next - Date.now();
             if(diff > 0) {
-                const h = Math.floor(diff/3600000); const m = Math.floor((diff%3600000)/60000);
-                lbl.innerText = `NEXT SYNC: ${h}h ${m}m`; btn.disabled = true;
+                const h = Math.floor(diff/3600000);
+                const m = Math.floor((diff%3600000)/60000);
+                lbl.innerText = `NEXT SYNC: ${h}h ${m}m`;
+                btn.disabled = true;
             } else { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; }
         }
 
         async function claimDaily() {
             if(!user.wallet_address) return;
-            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 100, streak: (user.streak || 0) + 1, last_checkin: new Date().toISOString() }).eq('id', user.id);
-            if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]); location.reload(); }
+            const { error } = await _supabase.from('profiles').update({ 
+                balance: user.balance + 100, 
+                streak: (user.streak || 0) + 1, 
+                last_checkin: new Date().toISOString() 
+            }).eq('id', user.id);
+            if(!error) {
+                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]);
+                location.reload();
+            }
         }
 
         function enableTwitterClaim() {
             const btn = document.getElementById('t-claim-btn');
-            if(document.getElementById('t-status').innerText !== "TASK_COMPLETED") { btn.disabled = false; btn.style.background = "var(--neon-main)"; }
+            if(document.getElementById('t-status').innerText !== "TASK_COMPLETED") {
+                btn.disabled = false;
+                btn.style.background = "var(--neon-main)";
+            }
         }
 
         async function claimTwitter() {
             if(!user.wallet_address) { alert("Connect Wallet first!"); return; }
             const { error } = await _supabase.from('profiles').update({ balance: user.balance + 500 }).eq('id', user.id);
-            if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 500 }]); alert("Verified: +500 LAST"); location.reload(); }
+            if(!error) {
+                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 500 }]);
+                alert("Verified: +500 LAST");
+                location.reload();
+            }
         }
 
         async function handleWalletClick() {
             if(window.ethereum) {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                await _supabase.from('profiles').update({ wallet_address: accounts[0] }).eq('id', user.id); location.reload();
+                await _supabase.from('profiles').update({ wallet_address: accounts[0] }).eq('id', user.id);
+                location.reload();
             } else { alert("Please install MetaMask!"); }
         }
 
         function calculateRank() {
-            const pts = user.balance; const refs = globalRefs;
+            const pts = user.balance;
+            const refs = globalRefs;
             document.querySelectorAll('.archive-card').forEach(c => c.classList.remove('unlocked'));
             document.getElementById('arc-ghost').classList.add('unlocked');
             let rank = { name: "NEURAL_GHOST", class: "rank-ghost" };
@@ -514,7 +575,8 @@
 
         async function fetchRefCount() {
             const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id);
-            globalRefs = count || 0; document.getElementById('ref-count').innerText = `${globalRefs} NODES`;
+            globalRefs = count || 0;
+            document.getElementById('ref-count').innerText = `${globalRefs} NODES`;
         }
 
         function switchTab(id, title) {
@@ -524,7 +586,11 @@
             document.getElementById('sidebar').classList.remove('active');
         }
 
-        function copyRefLink() { navigator.clipboard.writeText(`${window.location.origin}/?ref=${user.id}`); alert("Invite link copied!"); }
+        function copyRefLink() {
+            navigator.clipboard.writeText(`${window.location.origin}/?ref=${user.id}`);
+            alert("Invite link copied!");
+        }
+
         async function logout() { await _supabase.auth.signOut(); location.reload(); }
         window.onload = init;
     </script>
