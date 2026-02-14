@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1200">
+    <meta name="viewport" content="width=1200, initial-scale=0.1">
     <title>Last Chain | Quantum Neural Mesh v2.0</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -26,7 +26,6 @@
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
             min-height: 100vh;
-            /* Grid background delete kar diya gaya hai */
             transition: filter 1s ease;
         }
 
@@ -37,7 +36,25 @@
             width: 100%; 
             height: 100%;
             z-index: -1; 
-            background: #000000; /* Background bilkul kaala */
+            background: #000000; /* Full Black */
+        }
+
+        /* Desktop Warning Styles */
+        #desktop-only-warning {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            background: #000;
+            z-index: 999999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        @media (max-width: 950px) {
+            #desktop-only-warning { display: flex !important; }
+            #app-container, header, .sidebar, #auth-view { display: none !important; }
         }
 
         #cursor-dot {
@@ -86,9 +103,10 @@
 
         .sidebar { 
             position: fixed; left: -360px; width: 320px; height: 95vh; top: 2.5vh;
-            background: rgba(5, 5, 10, 0.95); backdrop-filter: blur(50px);
+            background: #000000 !important; backdrop-filter: blur(50px);
             border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 30px;
             transition: 0.8s cubic-bezier(0.8, 0, 0.2, 1); z-index: 1100; margin-left: 20px;
+            display: flex; flex-direction: column;
         }
         .sidebar.active { left: 0; box-shadow: 0 0 50px rgba(0, 255, 204, 0.15); }
 
@@ -118,7 +136,7 @@
         .box-cw::before { animation: rotate-cw 4s linear infinite; }
         .box-acw::before { animation: rotate-acw 4s linear infinite; }
 
-        ..inner-content { position: relative; background: #000000 !important; border-radius: 38px; z-index: 1; }
+        .inner-content { position: relative; background: #000000 !important; border-radius: 38px; z-index: 1; }
         .stat-card { background: #000000 !important; padding: 50px 40px; border-radius: 38px; }
         .stat-card h2 { font-family: 'Space Mono'; font-size: 36px; font-weight: 700; margin-top: 15px; }
         .stat-card p { font-size: 12px; color: #aaa; letter-spacing: 4px; font-weight: 900; text-transform: uppercase; }
@@ -148,81 +166,36 @@
         .archive-card h3 { font-family: 'Syncopate'; font-size: 11px; margin-bottom: 10px; color: var(--neon-main); }
         .archive-card p { font-size: 10px; font-family: 'Space Mono'; color: #888; line-height: 1.4; }
         .archive-card .icon { font-size: 40px; margin-bottom: 15px; display: block; }
-#desktop-only-warning {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
-    z-index: 999999;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-}
-/* 950px se choti screen par sab hide karke warning dikhayega */
-@media (max-width: 950px) {
-    #desktop-only-warning {
-        display: flex !important;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100vh;
-        background: #000;
-        z-index: 999999;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-    #app-container, header, #auth-view, #particle-canvas, .sidebar {
-        display: none !important;
-    }
-    body { overflow: hidden !important; }
-}
-<script>
-    function checkDesktop() {
-        const warning = document.getElementById('desktop-only-warning');
-        // Agar width 800px se bari hai, to warning hamesha ke liye hide kar do
-        if (window.innerWidth > 800) {
-            warning.style.display = 'none';
-        } else {
-            warning.style.display = 'flex';
-        }
-    }
-    // Check on load and resize
-    window.addEventListener('load', checkDesktop);
-    window.addEventListener('resize', checkDesktop);
-</script>
-        
     </style>
 </head>
 <body onclick="handleGlobalClick(event)">
-    <div id="desktop-only-warning" style="display:none;">
-    <div style="border: 1px solid var(--neon-alt); padding: 40px; text-align: center;">
-        <h1 style="font-family:'Syncopate'; color:var(--neon-main); font-size: 20px;">DESKTOP MODE REQUIRED</h1>
-        <p style="color:#fff; font-family:'Space Mono'; margin-top: 20px; font-size: 12px;">
-            PLEASE ENABLE 'DESKTOP SITE' FROM BROWSER SETTINGS<br>TO ACCESS THE NEURAL MESH.
-        </p>
-    </div>
-</div>
 
+    <div id="desktop-only-warning">
+        <div style="border: 1px solid var(--neon-alt); padding: 40px; text-align: center;">
+            <h1 style="font-family:'Syncopate'; color:var(--neon-main); font-size: 20px;">DESKTOP MODE REQUIRED</h1>
+            <p style="color:#fff; font-family:'Space Mono'; margin-top: 20px; font-size: 12px;">
+                PLEASE ENABLE 'DESKTOP SITE' FROM BROWSER SETTINGS<br>TO ACCESS THE NEURAL MESH.
+            </p>
+        </div>
+    </div>
+
+    <canvas id="particle-canvas"></canvas>
+    <div id="cursor-dot"></div>
     <div id="cursor-outline"></div>
 
-        <div id="sidebar" class="sidebar" style="display: flex; flex-direction: column;">
-    <div style="padding:60px 40px; font-family:'Syncopate'; font-size:20px; color:var(--neon-main);">LAST CHAIN</div>
-    <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
-    <div class="menu-item" onclick="switchTab('archive-view', 'ARCHIVES')">ARCHIVES</div>
-    <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
-    <div class="menu-item" onclick="switchTab('referral-view', 'REFERRAL')">REFERRAL</div>
-    <div class="menu-item" onclick="switchTab('presale-view', 'PRE-SALE')">PRE-SALE</div>
-    <div class="menu-item" onclick="switchTab('secret-view', 'SECRET SOCIETY')" style="color: var(--neon-alt);">[ SECRET SOCIETY ]</div>
-    
-    <div style="margin-top: auto; margin-bottom: 30px; padding: 25px 35px; color: var(--neon-alt); font-family: 'Syncopate'; font-size: 11px; cursor: pointer; text-align: center; border-top: 1px solid rgba(255,0,122,0.1); font-weight: bold;" onclick="logout()">
-        [ TERMINATE_SESSION ]
-    </div>
-</div>
-    
+    <div id="sidebar" class="sidebar">
+        <div style="padding:60px 40px; font-family:'Syncopate'; font-size:20px; color:var(--neon-main); text-shadow: 0 0 10px var(--neon-main);">LAST CHAIN</div>
+        
+        <div class="menu-item active-tab" onclick="switchTab('dashboard-view', 'DASHBOARD')">DASHBOARD</div>
+        <div class="menu-item" onclick="switchTab('archive-view', 'ARCHIVES')">ARCHIVES</div>
+        <div class="menu-item" onclick="switchTab('tasks-view', 'MISSIONS')">MISSIONS</div>
+        <div class="menu-item" onclick="switchTab('referral-view', 'REFERRAL')">REFERRAL👥</div>
+        <div class="menu-item" onclick="switchTab('presale-view', 'PRE-SALE')">PRE-SALE</div>
+        <div class="menu-item" onclick="switchTab('secret-view', 'SECRET SOCIETY')" style="color: var(--neon-alt);">[ SECRET SOCIETY ]</div>
+        
+        <div style="margin-top: auto; margin-bottom: 30px; padding: 25px 35px; color: var(--neon-alt); font-weight: bold; font-size: 11px; cursor: pointer; text-align: center; border-top: 1px solid rgba(255,0,122,0.1);" onclick="logout()">
+            [ TERMINATE_SESSION ]
+        </div>
     </div>
 
     <div id="app-container" class="hidden">
@@ -253,26 +226,15 @@
                 </div>
 
                 <div class="progress-box">
-                    function checkResolution() {
-    const warning = document.getElementById('desktop-only-warning');
-    if(window.innerWidth <= 1024) {
-        warning.style.display = 'flex';
-    } else {
-        warning.style.display = 'none';
-    }
-}
-                         window.addEventListener('resize', checkResolution);
-                         window.addEventListener('load', checkResolution);
-        
                     <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:900; color:var(--neon-main); font-family: 'Space Mono';">
                         <span>NETWORK SYNC PROGRESS</span><span id="p-txt" style="color:#fff;">0/5000</span>
                     </div>
-                    <div class="bar-bg"><div id="bar" class="bar-fill"></div></div
+                    <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
                 </div>
 
-                <div class="responsive-grid" style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
+                <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
                     <div class="rotating-border-box box-cw">
-                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px; background: rgba(5,5,5,0.8);">
+                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px; background: #000 !important;">
                             <p style="margin-bottom:40px; color:var(--neon-main); display: flex; align-items: center; gap: 10px; font-size:14px;">
                                 <span style="width: 10px; height: 10px; background: var(--neon-main); border-radius: 50%;"></span>
                                 HISTORY_LOG
@@ -281,7 +243,7 @@
                         </div>
                     </div>
                     <div class="rotating-border-box box-acw">
-                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px; background: rgba(5,5,5,0.8);">
+                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px; background: #000 !important;">
                             <p style="margin-bottom:40px; display: flex; align-items: center; gap: 10px; font-size:14px;">
                                 <span style="width: 10px; height: 10px; background: var(--neon-alt); border-radius: 50%;"></span>
                                 LABORHOOD RANKING <span id="my-rank" style="margin-left: auto; color:var(--neon-alt);">#--</span>
@@ -297,33 +259,12 @@
                     <div class="inner-content stat-card" style="min-height: 600px; text-align: left;">
                         <h2 style="font-family:'Syncopate'; font-size: 24px; margin-bottom: 10px;">NEURAL_ARCHIVES</h2>
                         <p style="color:var(--neon-main); font-family:'Space Mono'; margin-bottom: 40px; font-size:13px;">Unlocked nodes represent your permanent status in the mesh.</p>
-                        
                         <div class="archive-grid">
-                            <div id="arc-ghost" class="archive-card">
-                                <span class="icon">👻</span>
-                                <h3>NEURAL_GHOST</h3>
-                                <p>Entry level node. System connection established.</p>
-                            </div>
-                            <div id="arc-phantom" class="archive-card">
-                                <span class="icon">👽</span>
-                                <h3>DATA_PHANTOM</h3>
-                                <p>Requirement: 5,000 LAST Points + 3 Nodes.</p>
-                            </div>
-                            <div id="arc-architect" class="archive-card">
-                                <span class="icon">💠</span>
-                                <h3>VOID_ARCHITECT</h3>
-                                <p>Requirement: 15,000 LAST Points + 7 Nodes.</p>
-                            </div>
-                            <div id="arc-overlord" class="archive-card">
-                                <span class="icon">🗽</span>
-                                <h3>SYSTEM_OVERLORD</h3>
-                                <p>Requirement: 100,000 LAST Points + 50 Nodes.</p>
-                            </div>
-                            <div id="arc-source" class="archive-card">
-                                <span class="icon">👑</span>
-                                <h3>THE_LAST_SOURCE</h3>
-                                <p>The ultimate layer. 500,000 LAST + 200 Nodes.</p>
-                            </div>
+                            <div id="arc-ghost" class="archive-card"><span class="icon">👻</span><h3>NEURAL_GHOST</h3><p>Entry level node.</p></div>
+                            <div id="arc-phantom" class="archive-card"><span class="icon">👽</span><h3>DATA_PHANTOM</h3><p>Req: 5,000 pts + 3 Nodes.</p></div>
+                            <div id="arc-architect" class="archive-card"><span class="icon">💠</span><h3>VOID_ARCHITECT</h3><p>Req: 15,000 pts + 7 Nodes.</p></div>
+                            <div id="arc-overlord" class="archive-card"><span class="icon">🗽</span><h3>SYSTEM_OVERLORD</h3><p>Req: 100,000 pts + 50 Nodes.</p></div>
+                            <div id="arc-source" class="archive-card"><span class="icon">👑</span><h3>THE_LAST_SOURCE</h3><p>Ultimate layer.</p></div>
                         </div>
                     </div>
                 </div>
@@ -332,23 +273,16 @@
             <div id="tasks-view" class="tab-content hidden">
                 <div class="rotating-border-box box-cw" style="margin-bottom:20px;">
                     <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 40px;">
-                        <div>
-                            <h2 style="font-size: 26px; font-family:'Syncopate';">Daily Sync</h2>
-                            <p id="claim-timer" style="color:var(--neon-main); margin-top:12px; font-family: 'Space Mono'; font-size: 13px; font-weight:bold;">READY_FOR_UPLOAD</p>
-                        </div>
-                        <button id="c-btn" class="btn-claim" onclick="claimDaily()" style="padding: 18px 45px;">CLAIM</button>
+                        <div><h2 style="font-size: 26px; font-family:'Syncopate';">Daily Sync</h2><p id="claim-timer" style="color:var(--neon-main); margin-top:12px;">READY_FOR_UPLOAD</p></div>
+                        <button id="c-btn" class="btn-claim" onclick="claimDaily()">CLAIM</button>
                     </div>
                 </div>
-
                 <div class="rotating-border-box box-acw" style="margin-bottom:20px;">
                     <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 40px;">
-                        <div>
-                            <h2 style="font-size: 26px; font-family:'Syncopate';">Follow Architect</h2>
-                            <p id="t-status" style="color:#ccc; margin-top:12px; font-family: 'Space Mono'; font-size: 13px;">REWARD: +300 LAST_POINTS</p>
-                        </div>
+                        <div><h2 style="font-size: 26px; font-family:'Syncopate';">Follow Architect</h2><p id="t-status" style="color:#ccc; margin-top:12px;">REWARD: +300 LAST_POINTS</p></div>
                         <div style="display:flex; gap: 15px;">
-                            <a href="https://x.com/Aman_ullah56" target="_blank" onclick="enableTwitterClaim()" class="btn-claim" style="text-decoration:none; background:transparent; border:1px solid var(--neon-main); color:var(--neon-main); padding: 18px 30px; display: flex; align-items: center;">GO_TO_X</a>
-                            <button id="t-claim-btn" class="btn-claim" onclick="claimTwitter()" style="padding: 18px 45px;" disabled>CLAIM</button>
+                            <a href="https://x.com/Aman_ullah56" target="_blank" onclick="enableTwitterClaim()" class="btn-claim" style="text-decoration:none;">GO_TO_X</a>
+                            <button id="t-claim-btn" class="btn-claim" onclick="claimTwitter()" disabled>CLAIM</button>
                         </div>
                     </div>
                 </div>
@@ -357,7 +291,7 @@
             <div id="referral-view" class="tab-content hidden">
                 <div class="rotating-border-box box-acw">
                     <div class="inner-content stat-card" style="text-align:left; padding: 40px;">
-                        <p style="margin-bottom:30px; color:var(--neon-main); font-size:14px; font-weight:bold;">REFERRAL_PROTOCOL_v1.0</p>
+                        <p style="margin-bottom:30px; color:var(--neon-main);">REFERRAL_PROTOCOL_v1.0</p>
                         <div class="lb-item"><span>REWARD_PER_NODE</span><span style="color:var(--neon-main);">+200 LAST</span></div>
                         <div class="lb-item"><span>TOTAL_ACTIVE_NODES</span><span id="ref-count" style="color:var(--neon-alt);">0 NODES</span></div>
                         <button class="btn-claim" onclick="copyRefLink()" style="width:100%; margin-top:30px;">COPY_INVITE_LINK</button>
@@ -369,23 +303,16 @@
                 <div class="rotating-border-box box-cw" style="min-height: 500px; display: flex; align-items: center; justify-content: center;">
                     <div class="inner-content stat-card" style="width: 100%; text-align: center;">
                         <div style="font-size: 80px; margin-bottom: 20px;">🔒</div>
-                        <h2 style="font-family: 'Syncopate'; color: var(--neon-alt); letter-spacing: 15px;">ENCRYPTED COMING SOON</h2>
-                        <p style="color: #ccc; margin-top:15px;">Quantum Presale restricted to Tier-1 Alpha Nodes only.</p>
+                        <h2 style="font-family: 'Syncopate'; color: var(--neon-alt);">COMING SOON</h2>
                     </div>
                 </div>
             </div>
 
             <div id="secret-view" class="tab-content hidden">
                 <div class="rotating-border-box box-acw" style="min-height: 550px;">
-                    <div class="inner-content stat-card" style="text-align:center; min-height: 550px; background: rgba(10,0,5,0.98); border: 1px solid var(--neon-alt);">
-                        <div id="society-lock-screen">
-                            <div style="font-size: 70px; margin-bottom: 20px;">☠️</div>
-                            <h2 style="font-family: 'Syncopate'; color: var(--neon-alt); letter-spacing: 10px;">ACCESS_DENIED</h2>
-                            <div style="margin: 35px 0; text-align: left; display: inline-block; font-family: 'Space Mono';">
-                                <p>❌ STREAK_PROGRESS: <span id="current-streak-val">0</span>/60 DAYS</p>
-                                <p>❌ NEURAL_NETWORK: <span id="current-ref-val">0</span>/50 NODES</p>
-                            </div>
-                        </div>
+                    <div class="inner-content stat-card" style="text-align:center; min-height: 550px; background: rgba(10,0,5,0.98);">
+                        <div style="font-size: 70px; margin-bottom: 20px;">☠️</div>
+                        <h2 style="font-family: 'Syncopate'; color: var(--neon-alt);">ACCESS_DENIED</h2>
                     </div>
                 </div>
             </div>
@@ -404,13 +331,25 @@
         let user = null;
         let globalRefs = 0;
 
+        // Force warning visibility logic
+        function checkDesktopMode() {
+            const warning = document.getElementById('desktop-only-warning');
+            if (window.innerWidth > 800) {
+                warning.style.setProperty('display', 'none', 'important');
+            } else {
+                warning.style.setProperty('display', 'flex', 'important');
+            }
+        }
+        window.addEventListener('resize', checkDesktopMode);
+        window.addEventListener('load', checkDesktopMode);
+
         function toggleSidebar(e) { e.stopPropagation(); document.getElementById('sidebar').classList.toggle('active'); }
         function handleGlobalClick(e) {
             const sb = document.getElementById('sidebar');
             if (sb.classList.contains('active') && !sb.contains(e.target)) sb.classList.remove('active');
         }
 
-        /* --- High Density Background Particle System --- */
+        /* --- Particle System --- */
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -427,7 +366,6 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 2.5;
-                // Faster movement for "full movement" feel
                 this.speedX = Math.random() * 1.2 - 0.6;
                 this.speedY = Math.random() * 1.2 - 0.6;
             }
@@ -449,7 +387,6 @@
 
         function initParticles() {
             particles = [];
-            // Increased particle count for full background coverage
             const count = (canvas.width * canvas.height) / 10000;
             for (let i = 0; i < Math.max(count, 150); i++) {
                 particles.push(new Particle());
@@ -465,7 +402,6 @@
                     const dx = p.x - particles[j].x;
                     const dy = p.y - particles[j].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    // Longer connection range for a tighter mesh
                     if (dist < 150) {
                         ctx.strokeStyle = `rgba(0, 255, 204, ${0.2 - dist / 750})`;
                         ctx.lineWidth = 0.8;
@@ -486,7 +422,7 @@
             document.getElementById('cursor-outline').style.left = (e.x-20) + 'px'; document.getElementById('cursor-outline').style.top = (e.y-20) + 'px';
         });
 
-        /* --- Core Logic (Unchanged) --- */
+        /* --- Supabase Core Logic --- */
         async function login() { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
         
         async function init() {
@@ -498,6 +434,7 @@
                 fetchLeaderboard();
                 setInterval(updateCountdown, 1000);
             }
+            checkDesktopMode();
         }
 
         async function fetchUser(id, rid) {
@@ -516,8 +453,6 @@
             document.getElementById('app-container').classList.remove('hidden');
             document.getElementById('header-pts').innerText = user.balance;
             document.getElementById('s-val').innerText = (user.streak || 0) + "d";
-            document.getElementById('current-streak-val').innerText = user.streak || 0;
-            document.getElementById('current-ref-val').innerText = globalRefs;
             document.getElementById('p-txt').innerText = `${user.balance}/5000`;
             document.getElementById('bar').style.width = Math.min((user.balance/5000)*100, 100) + "%";
             calculateRank();
@@ -525,7 +460,6 @@
             if(user.wallet_address) {
                 wb.innerText = user.wallet_address.slice(0,5)+"..."+user.wallet_address.slice(-4);
                 wb.style.background = "var(--neon-alt)";
-                wb.style.color = "#fff";
             }
         }
 
@@ -536,12 +470,8 @@
             document.getElementById('history-list').innerHTML = data.map(h => {
                 const hDate = new Date(h.completed_at);
                 if(hDate.toDateString() === today) todaySum += h.points;
-                if(h.task_name === 'Twitter Follow') {
-                    document.getElementById('t-claim-btn').disabled = true;
-                    document.getElementById('t-status').innerText = "TASK_COMPLETED";
-                }
-                return `<div class="lb-item" style="font-size:12px;"><span>${h.task_name}</span><b style="color:var(--neon-main);">+${h.points}</b></div>`;
-            }).join('') || '<p style="color:#555; font-size:12px;">EMPTY_LOG_FILE</p>';
+                return `<div class="lb-item"><span>${h.task_name}</span><b style="color:var(--neon-main);">+${h.points}</b></div>`;
+            }).join('') || '<p>EMPTY_LOG</p>';
             document.getElementById('t-pts').innerText = todaySum;
         }
 
@@ -554,16 +484,16 @@
         function updateCountdown() {
             const btn = document.getElementById('c-btn');
             const lbl = document.getElementById('claim-timer');
-            if(!user.wallet_address) { lbl.innerText = "PLEASE_CONNECT_WALLET_FIRST"; btn.disabled = true; return; }
-            if(!user.last_checkin) { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; return; }
+            if(!user || !user.wallet_address) { lbl.innerText = "CONNECT_WALLET_FIRST"; btn.disabled = true; return; }
+            if(!user.last_checkin) { lbl.innerText = "READY"; btn.disabled = false; return; }
             const next = new Date(user.last_checkin).getTime() + 86400000;
             const diff = next - Date.now();
             if(diff > 0) {
                 const h = Math.floor(diff/3600000);
                 const m = Math.floor((diff%3600000)/60000);
-                lbl.innerText = `NEXT SYNC: ${h}h ${m}m`;
+                lbl.innerText = `NEXT: ${h}h ${m}m`;
                 btn.disabled = true;
-            } else { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; }
+            } else { lbl.innerText = "READY"; btn.disabled = false; }
         }
 
         async function claimDaily() {
@@ -579,30 +509,12 @@
             }
         }
 
-        function enableTwitterClaim() {
-            const btn = document.getElementById('t-claim-btn');
-            if(document.getElementById('t-status').innerText !== "TASK_COMPLETED") {
-                btn.disabled = false;
-                btn.style.background = "var(--neon-main)";
-            }
-        }
-
-        async function claimTwitter() {
-            if(!user.wallet_address) { alert("Connect Wallet first!"); return; }
-            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 500 }).eq('id', user.id);
-            if(!error) {
-                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 500 }]);
-                alert("Verified: +500 LAST");
-                location.reload();
-            }
-        }
-
         async function handleWalletClick() {
             if(window.ethereum) {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 await _supabase.from('profiles').update({ wallet_address: accounts[0] }).eq('id', user.id);
                 location.reload();
-            } else { alert("Please install MetaMask!"); }
+            } else { alert("MetaMask required!"); }
         }
 
         function calculateRank() {
@@ -613,8 +525,6 @@
             let rank = { name: "NEURAL_GHOST", class: "rank-ghost" };
             if(pts >= 5000 && refs >= 3) { rank = { name: "DATA_PHANTOM", class: "rank-phantom" }; document.getElementById('arc-phantom').classList.add('unlocked'); }
             if(pts >= 15000 && refs >= 7) { rank = { name: "VOID_ARCHITECT", class: "rank-architect" }; document.getElementById('arc-architect').classList.add('unlocked'); }
-            if(pts >= 100000 && refs >= 50) { rank = { name: "SYSTEM_OVERLORD", class: "rank-overlord" }; document.getElementById('arc-overlord').classList.add('unlocked'); }
-            if(pts >= 500000 && refs >= 200) { rank = { name: "THE_LAST_SOURCE", class: "rank-source" }; document.getElementById('arc-source').classList.add('unlocked'); }
             document.getElementById('rank-display').innerHTML = `${rank.name} <span class="badge-tag ${rank.class}">ACTIVE</span>`;
         }
 
@@ -633,7 +543,7 @@
 
         function copyRefLink() {
             navigator.clipboard.writeText(`${window.location.origin}/?ref=${user.id}`);
-            alert("Invite link copied!");
+            alert("Copied!");
         }
 
         async function logout() { await _supabase.auth.signOut(); location.reload(); }
