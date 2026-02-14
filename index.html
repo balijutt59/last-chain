@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1200">
     <title>Last Chain | Quantum Neural Mesh v2.0</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -162,30 +162,36 @@
     text-align: center;
     padding: 20px;
 }
-
-/* 1024px se choti screen par active hoga */
+/* 1024px se choti screen par sab hide karke warning dikhayega */
 @media (max-width: 1024px) {
     #desktop-only-warning {
         display: flex !important;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100vh;
+        background: #000;
+        z-index: 999999;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
     }
-    #app-container, header, #auth-view, #particle-canvas, #cursor-dot, #cursor-outline, .sidebar {
+    #app-container, header, #auth-view, #particle-canvas, .sidebar {
         display: none !important;
     }
-    body {
-        overflow: hidden !important;
-    }
+    body { overflow: hidden !important; }
 }
-
 
     </style>
 </head>
 <body onclick="handleGlobalClick(event)">
-    <div id="desktop-only-warning">
-        <div style="border: 1px solid var(--neon-alt); padding: 40px; border-radius: 20px;">
-            <h1 style="font-family:'Syncopate'; color:var(--neon-alt);">ACCESS_DENIED</h1>
-            <p style="color:#fff; font-family:'Space Mono'; margin-top:10px;">DESKTOP_REQUIRED</p>
-        </div>
+    <div id="desktop-only-warning" style="display:none;">
+    <div style="border: 1px solid var(--neon-alt); padding: 40px; text-align: center;">
+        <h1 style="font-family:'Syncopate'; color:var(--neon-main); font-size: 20px;">DESKTOP MODE REQUIRED</h1>
+        <p style="color:#fff; font-family:'Space Mono'; margin-top: 20px; font-size: 12px;">
+            PLEASE ENABLE 'DESKTOP SITE' FROM BROWSER SETTINGS<br>TO ACCESS THE NEURAL MESH.
+        </p>
     </div>
+</div>
 
     <div id="cursor-outline"></div>
 
