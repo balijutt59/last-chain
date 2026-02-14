@@ -162,8 +162,8 @@
     text-align: center;
     padding: 20px;
 }
-/* 1024px se choti screen par sab hide karke warning dikhayega */
-@media (max-width: 1024px) {
+/* 950px se choti screen par sab hide karke warning dikhayega */
+@media (max-width: 950px) {
     #desktop-only-warning {
         display: flex !important;
         position: fixed;
@@ -180,7 +180,21 @@
     }
     body { overflow: hidden !important; }
 }
-
+<script>
+    function checkDesktop() {
+        const warning = document.getElementById('desktop-only-warning');
+        // Agar width 800px se bari hai, to warning hamesha ke liye hide kar do
+        if (window.innerWidth > 800) {
+            warning.style.display = 'none';
+        } else {
+            warning.style.display = 'flex';
+        }
+    }
+    // Check on load and resize
+    window.addEventListener('load', checkDesktop);
+    window.addEventListener('resize', checkDesktop);
+</script>
+        
     </style>
 </head>
 <body onclick="handleGlobalClick(event)">
