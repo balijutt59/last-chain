@@ -29,29 +29,44 @@
             transition: filter 1s ease;
         }
 
-        /* --- NEW: MOBILE BLOCKER --- */
+        /* --- ADDED: MOBILE BLOCKER OVERLAY --- */
         #mobile-blocker {
-            display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100vh;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
-            z-index: 999999;
+            z-index: 99999;
+            display: none; /* Hidden by default, shown via JS */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
             text-align: center;
             padding: 20px;
         }
+        #mobile-blocker h2 {
+            font-family: 'Syncopate';
+            color: var(--neon-main);
+            font-size: 18px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+        #mobile-blocker p {
+            font-family: 'Space Mono';
+            font-size: 12px;
+            color: #888;
+            line-height: 1.6;
+        }
+        .desktop-icon { font-size: 50px; margin-bottom: 20px; display: block; }
 
+        /* Media Query to trigger blocker on small screens */
         @media (max-width: 1024px) {
             #mobile-blocker { display: flex; }
-            #app-container, header, .sidebar, #auth-view, #particle-canvas { display: none !important; }
+            #app-container, header, #sidebar, #auth-view { display: none !important; }
             * { cursor: default !important; }
         }
 
-        /* --- BACKGROUND & CURSOR --- */
         #particle-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; background: #000000;
         }
 
@@ -68,12 +83,10 @@
 
         .hidden { display: none !important; }
 
-        /* Animations */
         @keyframes rotate-cw { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes rotate-acw { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
         @keyframes pulse-glow { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* Badge Styles */
         .badge-tag {
             padding: 6px 14px; border-radius: 50px; font-size: 10px; font-family: 'Syncopate';
             font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-left: 10px;
@@ -89,13 +102,11 @@
             position: relative; padding: 3px; overflow: hidden; border-radius: 18px; background: rgba(255, 255, 255, 0.1);
             box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
         }
-
         .thick-border-box::before {
             content: ''; position: absolute; width: 250%; height: 250%;
             background: conic-gradient(transparent, transparent, var(--neon-main), transparent, var(--neon-main));
             top: -75%; left: -75%; animation: rotate-cw 3s linear infinite;
         }
-
         .inner-glow-content {
             position: relative; background: #08080a; padding: 12px 25px; border-radius: 15px; z-index: 1; display: flex; align-items: center; gap: 20px;
         }
@@ -130,7 +141,6 @@
             background: conic-gradient(transparent, transparent, transparent, var(--neon-main));
             top: -25%; left: -25%;
         }
-
         .box-cw::before { animation: rotate-cw 4s linear infinite; }
         .box-acw::before { animation: rotate-acw 4s linear infinite; }
 
@@ -169,14 +179,9 @@
 <body onclick="handleGlobalClick(event)">
 
     <div id="mobile-blocker">
-        <div style="border: 1px solid var(--neon-alt); padding: 40px; border-radius: 20px; background: #050505; box-shadow: 0 0 30px rgba(255,0,122,0.2);">
-            <div style="font-size: 50px; margin-bottom: 20px;">🚫</div>
-            <h2 style="font-family: 'Syncopate'; color: var(--neon-main); margin-bottom: 15px; font-size: 18px;">DESKTOP MODE REQUIRED</h2>
-            <p style="font-family: 'Space Mono'; color: #ccc; font-size: 12px; line-height: 1.6;">
-                NEURAL MESH ACCESS DENIED VIA MOBILE TERMINAL.<br><br>
-                <span style="color: var(--neon-alt);">ACTION:</span> OPEN BROWSER SETTINGS AND ENABLE <br> <b>"DESKTOP SITE"</b> TO CONNECT.
-            </p>
-        </div>
+        <span class="desktop-icon">🖥️</span>
+        <h2>SYSTEM RESTRICTED</h2>
+        <p>Access to Last Chain Neural Mesh v2.0 requires a Desktop Interface.<br><br>Please enable <b>"Desktop Site"</b> in your browser settings to establish a secure connection.</p>
     </div>
 
     <canvas id="particle-canvas"></canvas>
@@ -202,7 +207,8 @@
                 <div class="thick-border-box">
                     <div class="inner-glow-content">
                         <div class="points-display" style="font-family: 'Space Mono'; font-weight: bold; color: #fff;">
-                            <span id="header-pts" style="font-size: 20px; color: var(--neon-main);">0</span> <small style="font-size: 12px; opacity: 0.8; letter-spacing: 2px;">LAST</small>
+                            <span id="header-pts" style="font-size: 20px; color: var(--neon-main);">0</span> 
+                            <small style="font-size: 12px; opacity: 0.8; letter-spacing: 2px;">LAST</small>
                         </div>
                         <div style="width: 1px; height: 25px; background: rgba(255,255,255,0.2);"></div>
                         <button id="btn-wallet" class="wallet-btn" onclick="handleWalletClick()">CONNECT</button>
@@ -218,38 +224,110 @@
                     <div class="rotating-border-box box-acw"><div class="inner-content stat-card"><p>Today Points</p><h2 id="t-pts">0</h2></div></div>
                     <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Node Rank</p><h2 id="rank-display" style="font-size: 22px;">LOADING...</h2></div></div>
                 </div>
+
                 <div class="progress-box">
-                    <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:900; color:var(--neon-main); font-family: 'Space Mono';"><span>NETWORK SYNC PROGRESS</span><span id="p-txt" style="color:#fff;">0/5000</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:900; color:var(--neon-main); font-family: 'Space Mono';">
+                        <span>NETWORK SYNC PROGRESS</span><span id="p-txt" style="color:#fff;">0/5000</span>
+                    </div>
                     <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
                 </div>
+
                 <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
-                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card" style="text-align:left; min-height: 400px;"><p>HISTORY_LOG</p><div id="history-list"></div></div></div>
-                    <div class="rotating-border-box box-acw"><div class="inner-content stat-card" style="text-align:left; min-height: 400px;"><p>LABORHOOD RANKING</p><div id="leaderboard"></div></div></div>
+                    <div class="rotating-border-box box-cw">
+                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px; background: rgba(5,5,5,0.8);">
+                            <p style="margin-bottom:40px; color:var(--neon-main); display: flex; align-items: center; gap: 10px; font-size:14px;">
+                                <span style="width: 10px; height: 10px; background: var(--neon-main); border-radius: 50%;"></span>
+                                HISTORY_LOG
+                            </p>
+                            <div id="history-list"></div>
+                        </div>
+                    </div>
+                    <div class="rotating-border-box box-acw">
+                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px; background: rgba(5,5,5,0.8);">
+                            <p style="margin-bottom:40px; display: flex; align-items: center; gap: 10px; font-size:14px;">
+                                <span style="width: 10px; height: 10px; background: var(--neon-alt); border-radius: 50%;"></span>
+                                LABORHOOD RANKING <span id="my-rank" style="margin-left: auto; color:var(--neon-alt);">#--</span>
+                            </p>
+                            <div id="leaderboard"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
+
             <div id="archive-view" class="tab-content hidden">
-                <div class="rotating-border-box box-cw"><div class="inner-content stat-card" style="min-height: 600px;"><h2 style="font-family:'Syncopate';">NEURAL_ARCHIVES</h2><div class="archive-grid">
-                    <div id="arc-ghost" class="archive-card"><span class="icon">👻</span><h3>NEURAL_GHOST</h3><p>Entry level node.</p></div>
-                    <div id="arc-phantom" class="archive-card"><span class="icon">👽</span><h3>DATA_PHANTOM</h3><p>5k LAST + 3 Nodes.</p></div>
-                    <div id="arc-architect" class="archive-card"><span class="icon">💠</span><h3>VOID_ARCHITECT</h3><p>15k LAST + 7 Nodes.</p></div>
-                </div></div></div>
+                <div class="rotating-border-box box-cw">
+                    <div class="inner-content stat-card" style="min-height: 600px; text-align: left;">
+                        <h2 style="font-family:'Syncopate'; font-size: 24px; margin-bottom: 10px;">NEURAL_ARCHIVES</h2>
+                        <p style="color:var(--neon-main); font-family:'Space Mono'; margin-bottom: 40px; font-size:13px;">Unlocked nodes represent your permanent status in the mesh.</p>
+                        <div class="archive-grid">
+                            <div id="arc-ghost" class="archive-card"><span class="icon">👻</span><h3>NEURAL_GHOST</h3><p>Entry level node. System connection established.</p></div>
+                            <div id="arc-phantom" class="archive-card"><span class="icon">👽</span><h3>DATA_PHANTOM</h3><p>Requirement: 5,000 LAST Points + 3 Nodes.</p></div>
+                            <div id="arc-architect" class="archive-card"><span class="icon">💠</span><h3>VOID_ARCHITECT</h3><p>Requirement: 15,000 LAST Points + 7 Nodes.</p></div>
+                            <div id="arc-overlord" class="archive-card"><span class="icon">🗽</span><h3>SYSTEM_OVERLORD</h3><p>Requirement: 100,000 LAST Points + 50 Nodes.</p></div>
+                            <div id="arc-source" class="archive-card"><span class="icon">👑</span><h3>THE_LAST_SOURCE</h3><p>The ultimate layer. 500,000 LAST + 200 Nodes.</p></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="tasks-view" class="tab-content hidden">
-                <div class="rotating-border-box box-cw" style="margin-bottom:20px;"><div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center;"><div><h2>Daily Sync</h2><p id="claim-timer">READY</p></div><button id="c-btn" class="btn-claim" onclick="claimDaily()">CLAIM</button></div></div>
+                <div class="rotating-border-box box-cw" style="margin-bottom:20px;">
+                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 40px;">
+                        <div>
+                            <h2 style="font-size: 26px; font-family:'Syncopate';">Daily Sync</h2>
+                            <p id="claim-timer" style="color:var(--neon-main); margin-top:12px; font-family: 'Space Mono'; font-size: 13px; font-weight:bold;">READY_FOR_UPLOAD</p>
+                        </div>
+                        <button id="c-btn" class="btn-claim" onclick="claimDaily()" style="padding: 18px 45px;">CLAIM</button>
+                    </div>
+                </div>
+                <div class="rotating-border-box box-acw" style="margin-bottom:20px;">
+                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 40px;">
+                        <div>
+                            <h2 style="font-size: 26px; font-family:'Syncopate';">Follow Architect</h2>
+                            <p id="t-status" style="color:#ccc; margin-top:12px; font-family: 'Space Mono'; font-size: 13px;">REWARD: +300 LAST_POINTS</p>
+                        </div>
+                        <div style="display:flex; gap: 15px;">
+                            <a href="https://x.com/Aman_ullah56" target="_blank" onclick="enableTwitterClaim()" class="btn-claim" style="text-decoration:none; background:transparent; border:1px solid var(--neon-main); color:var(--neon-main); padding: 18px 30px; display: flex; align-items: center;">GO_TO_X</a>
+                            <button id="t-claim-btn" class="btn-claim" onclick="claimTwitter()" style="padding: 18px 45px;" disabled>CLAIM</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
+
             <div id="referral-view" class="tab-content hidden">
-                <div class="rotating-border-box box-acw"><div class="inner-content stat-card"><p>REFERRAL PROTOCOL</p><h2 id="ref-count">0 NODES</h2><button class="btn-claim" onclick="copyRefLink()" style="width:100%; margin-top:20px;">COPY LINK</button></div></div>
+                <div class="rotating-border-box box-acw">
+                    <div class="inner-content stat-card" style="text-align:left; padding: 40px;">
+                        <p style="margin-bottom:30px; color:var(--neon-main); font-size:14px; font-weight:bold;">REFERRAL_PROTOCOL_v1.0</p>
+                        <div class="lb-item"><span>REWARD_PER_NODE</span><span style="color:var(--neon-main);">+200 LAST</span></div>
+                        <div class="lb-item"><span>TOTAL_ACTIVE_NODES</span><span id="ref-count" style="color:var(--neon-alt);">0 NODES</span></div>
+                        <button class="btn-claim" onclick="copyRefLink()" style="width:100%; margin-top:30px;">COPY_INVITE_LINK</button>
+                    </div>
+                </div>
             </div>
 
             <div id="presale-view" class="tab-content hidden">
-                <div class="rotating-border-box box-cw" style="min-height: 400px; display: flex; align-items: center; justify-content: center;"><h2 style="font-family:'Syncopate'; color:var(--neon-alt);">COMING SOON</h2></div>
+                <div class="rotating-border-box box-cw" style="min-height: 500px; display: flex; align-items: center; justify-content: center;">
+                    <div class="inner-content stat-card" style="width: 100%; text-align: center;">
+                        <div style="font-size: 80px; margin-bottom: 20px;">🔒</div>
+                        <h2 style="font-family: 'Syncopate'; color: var(--neon-alt); letter-spacing: 15px;">ENCRYPTED COMING SOON</h2>
+                        <p style="color: #ccc; margin-top:15px;">Quantum Presale restricted to Tier-1 Alpha Nodes only.</p>
+                    </div>
+                </div>
             </div>
 
             <div id="secret-view" class="tab-content hidden">
-                <div class="rotating-border-box box-acw" style="min-height: 400px;"><div class="inner-content stat-card"><h2>ACCESS_DENIED</h2><p>Streak: <span id="current-streak-val">0</span>/60</p></div></div>
+                <div class="rotating-border-box box-acw" style="min-height: 550px;">
+                    <div class="inner-content stat-card" style="text-align:center; min-height: 550px; background: rgba(10,0,5,0.98); border: 1px solid var(--neon-alt);">
+                        <div id="society-lock-screen">
+                            <div style="font-size: 70px; margin-bottom: 20px;">☠️</div>
+                            <h2 style="font-family: 'Syncopate'; color: var(--neon-alt); letter-spacing: 10px;">ACCESS_DENIED</h2>
+                            <div style="margin: 35px 0; text-align: left; display: inline-block; font-family: 'Space Mono';">
+                                <p>❌ STREAK_PROGRESS: <span id="current-streak-val">0</span>/60 DAYS</p>
+                                <p>❌ NEURAL_NETWORK: <span id="current-ref-val">0</span>/50 NODES</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -266,30 +344,55 @@
         let user = null;
         let globalRefs = 0;
 
-        // Same Logic
         function toggleSidebar(e) { e.stopPropagation(); document.getElementById('sidebar').classList.toggle('active'); }
-        function handleGlobalClick(e) { const sb = document.getElementById('sidebar'); if (sb.classList.contains('active') && !sb.contains(e.target)) sb.classList.remove('active'); }
+        function handleGlobalClick(e) {
+            const sb = document.getElementById('sidebar');
+            if (sb.classList.contains('active') && !sb.contains(e.target)) sb.classList.remove('active');
+        }
 
+        /* --- Particles Logic --- */
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
+        window.addEventListener('resize', resize);
+        resize();
 
         class Particle {
-            constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2.5; this.speedX = Math.random() * 1.2 - 0.6; this.speedY = Math.random() * 1.2 - 0.6; }
-            update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width; if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height; }
-            draw() { ctx.fillStyle = 'rgba(0, 255, 204, 0.4)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.5;
+                this.speedX = Math.random() * 1.2 - 0.6;
+                this.speedY = Math.random() * 1.2 - 0.6;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 255, 204, 0.4)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
         }
-
-        function initParticles() { particles = []; const count = (canvas.width * canvas.height) / 10000; for (let i = 0; i < Math.max(count, 150); i++) particles.push(new Particle()); }
+        function initParticles() {
+            particles = [];
+            const count = (canvas.width * canvas.height) / 10000;
+            for (let i = 0; i < Math.max(count, 150); i++) particles.push(new Particle());
+        }
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach((p, i) => {
                 p.update(); p.draw();
                 for (let j = i; j < particles.length; j++) {
-                    const dx = p.x - particles[j].x; const dy = p.y - particles[j].y; const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 150) { ctx.strokeStyle = `rgba(0, 255, 204, ${0.2 - dist / 750})`; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
+                    const dx = p.x - particles[j].x; const dy = p.y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        ctx.strokeStyle = `rgba(0, 255, 204, ${0.2 - dist / 750})`;
+                        ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+                    }
                 }
             });
             requestAnimationFrame(animate);
@@ -301,6 +404,7 @@
             document.getElementById('cursor-outline').style.left = (e.x-20) + 'px'; document.getElementById('cursor-outline').style.top = (e.y-20) + 'px';
         });
 
+        /* --- Supabase & UI Logic --- */
         async function login() { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
         
         async function init() {
@@ -308,13 +412,17 @@
             if (session) {
                 const params = new URLSearchParams(window.location.search);
                 await fetchUser(session.user.id, params.get('ref'));
-                fetchHistory(); fetchLeaderboard(); setInterval(updateCountdown, 1000);
+                fetchHistory(); fetchLeaderboard();
+                setInterval(updateCountdown, 1000);
             }
         }
 
         async function fetchUser(id, rid) {
             let { data: p } = await _supabase.from('profiles').select('*').eq('id', id).single();
-            if (!p) { const { data } = await _supabase.from('profiles').insert([{ id, balance: 0, referred_by: rid }]).select().single(); p = data; }
+            if (!p) {
+                const { data } = await _supabase.from('profiles').insert([{ id, balance: 0, referred_by: rid }]).select().single();
+                p = data;
+            }
             user = p; await fetchRefCount(); updateUI();
         }
 
@@ -324,53 +432,99 @@
             document.getElementById('header-pts').innerText = user.balance;
             document.getElementById('s-val').innerText = (user.streak || 0) + "d";
             document.getElementById('current-streak-val').innerText = user.streak || 0;
+            document.getElementById('current-ref-val').innerText = globalRefs;
             document.getElementById('p-txt').innerText = `${user.balance}/5000`;
             document.getElementById('bar').style.width = Math.min((user.balance/5000)*100, 100) + "%";
             calculateRank();
-            if(user.wallet_address) { const wb = document.getElementById('btn-wallet'); wb.innerText = user.wallet_address.slice(0,5)+"..."+user.wallet_address.slice(-4); wb.style.background = "var(--neon-alt)"; wb.style.color = "#fff"; }
+            const wb = document.getElementById('btn-wallet');
+            if(user.wallet_address) {
+                wb.innerText = user.wallet_address.slice(0,5)+"..."+user.wallet_address.slice(-4);
+                wb.style.background = "var(--neon-alt)"; wb.style.color = "#fff";
+            }
         }
 
         async function fetchHistory() {
             const { data } = await _supabase.from('task_history').select('*').eq('user_id', user.id).order('completed_at', { ascending: false });
-            let todaySum = 0; const today = new Date().toDateString();
+            const today = new Date().toDateString();
+            let todaySum = 0;
             document.getElementById('history-list').innerHTML = data.map(h => {
                 if(new Date(h.completed_at).toDateString() === today) todaySum += h.points;
-                return `<div class="lb-item"><span>${h.task_name}</span><b>+${h.points}</b></div>`;
-            }).join('') || '<p>EMPTY</p>';
+                if(h.task_name === 'Twitter Follow') {
+                    document.getElementById('t-claim-btn').disabled = true;
+                    document.getElementById('t-status').innerText = "TASK_COMPLETED";
+                }
+                return `<div class="lb-item" style="font-size:12px;"><span>${h.task_name}</span><b style="color:var(--neon-main);">+${h.points}</b></div>`;
+            }).join('') || '<p style="color:#555; font-size:12px;">EMPTY_LOG_FILE</p>';
             document.getElementById('t-pts').innerText = todaySum;
         }
 
         async function fetchLeaderboard() {
             const { data } = await _supabase.from('profiles').select('id, balance').order('balance', { ascending: false }).limit(10);
-            document.getElementById('leaderboard').innerHTML = data.map((u, i) => `<div class="lb-item"><span>#${i+1} NODE_${u.id.slice(-4)}</span><b>${u.balance} LAST</b></div>`).join('');
+            document.getElementById('leaderboard').innerHTML = data.map((u, i) => 
+                `<div class="lb-item"><span>#${i+1} NODE_${u.id.slice(-4)}</span><b>${u.balance} LAST</b></div>`).join('');
         }
 
         function updateCountdown() {
-            const btn = document.getElementById('c-btn'); const lbl = document.getElementById('claim-timer');
-            if(!user.wallet_address) { lbl.innerText = "CONNECT WALLET"; btn.disabled = true; return; }
-            if(!user.last_checkin) { lbl.innerText = "READY"; btn.disabled = false; return; }
+            const btn = document.getElementById('c-btn');
+            const lbl = document.getElementById('claim-timer');
+            if(!user.wallet_address) { lbl.innerText = "PLEASE_CONNECT_WALLET_FIRST"; btn.disabled = true; return; }
+            if(!user.last_checkin) { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; return; }
             const diff = (new Date(user.last_checkin).getTime() + 86400000) - Date.now();
-            if(diff > 0) { lbl.innerText = `NEXT: ${Math.floor(diff/3600000)}h`; btn.disabled = true; } else { lbl.innerText = "READY"; btn.disabled = false; }
+            if(diff > 0) {
+                const h = Math.floor(diff/3600000); const m = Math.floor((diff%3600000)/60000);
+                lbl.innerText = `NEXT SYNC: ${h}h ${m}m`; btn.disabled = true;
+            } else { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; }
         }
 
         async function claimDaily() {
+            if(!user.wallet_address) return;
             const { error } = await _supabase.from('profiles').update({ balance: user.balance + 100, streak: (user.streak || 0) + 1, last_checkin: new Date().toISOString() }).eq('id', user.id);
             if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]); location.reload(); }
         }
 
+        function enableTwitterClaim() {
+            const btn = document.getElementById('t-claim-btn');
+            if(document.getElementById('t-status').innerText !== "TASK_COMPLETED") { btn.disabled = false; btn.style.background = "var(--neon-main)"; }
+        }
+
+        async function claimTwitter() {
+            if(!user.wallet_address) { alert("Connect Wallet first!"); return; }
+            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 500 }).eq('id', user.id);
+            if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 500 }]); alert("Verified: +500 LAST"); location.reload(); }
+        }
+
         async function handleWalletClick() {
-            if(window.ethereum) { const accs = await window.ethereum.request({ method: 'eth_requestAccounts' }); await _supabase.from('profiles').update({ wallet_address: accs[0] }).eq('id', user.id); location.reload(); }
+            if(window.ethereum) {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                await _supabase.from('profiles').update({ wallet_address: accounts[0] }).eq('id', user.id); location.reload();
+            } else { alert("Please install MetaMask!"); }
         }
 
         function calculateRank() {
+            const pts = user.balance; const refs = globalRefs;
+            document.querySelectorAll('.archive-card').forEach(c => c.classList.remove('unlocked'));
+            document.getElementById('arc-ghost').classList.add('unlocked');
             let rank = { name: "NEURAL_GHOST", class: "rank-ghost" };
-            if(user.balance >= 5000) rank = { name: "DATA_PHANTOM", class: "rank-phantom" };
+            if(pts >= 5000 && refs >= 3) { rank = { name: "DATA_PHANTOM", class: "rank-phantom" }; document.getElementById('arc-phantom').classList.add('unlocked'); }
+            if(pts >= 15000 && refs >= 7) { rank = { name: "VOID_ARCHITECT", class: "rank-architect" }; document.getElementById('arc-architect').classList.add('unlocked'); }
+            if(pts >= 100000 && refs >= 50) { rank = { name: "SYSTEM_OVERLORD", class: "rank-overlord" }; document.getElementById('arc-overlord').classList.add('unlocked'); }
+            if(pts >= 500000 && refs >= 200) { rank = { name: "THE_LAST_SOURCE", class: "rank-source" }; document.getElementById('arc-source').classList.add('unlocked'); }
             document.getElementById('rank-display').innerHTML = `${rank.name} <span class="badge-tag ${rank.class}">ACTIVE</span>`;
         }
 
-        async function fetchRefCount() { const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id); globalRefs = count || 0; document.getElementById('ref-count').innerText = `${globalRefs} NODES`; }
-        function switchTab(id, title) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); document.getElementById('page-title').innerText = title; document.getElementById('sidebar').classList.remove('active'); }
-        function copyRefLink() { navigator.clipboard.writeText(`${window.location.origin}/?ref=${user.id}`); alert("Copied!"); }
+        async function fetchRefCount() {
+            const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id);
+            globalRefs = count || 0; document.getElementById('ref-count').innerText = `${globalRefs} NODES`;
+        }
+
+        function switchTab(id, title) {
+            document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('page-title').innerText = title;
+            document.getElementById('sidebar').classList.remove('active');
+        }
+
+        function copyRefLink() { navigator.clipboard.writeText(`${window.location.origin}/?ref=${user.id}`); alert("Invite link copied!"); }
         async function logout() { await _supabase.auth.signOut(); location.reload(); }
         window.onload = init;
     </script>
