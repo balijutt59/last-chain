@@ -21,7 +21,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
         
         body { 
-            background: #000000; 
+            background: #000000;
             color: #fff; 
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
@@ -29,9 +29,9 @@
             transition: filter 1s ease;
         }
 
-        /* --- NEW: MOBILE WARNING OVERLAY --- */
-        #desktop-only-warning {
-            display: none; 
+        /* --- NEW: MOBILE BLOCKER --- */
+        #mobile-blocker {
+            display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100vh;
             background: #000;
@@ -40,22 +40,16 @@
             align-items: center;
             flex-direction: column;
             text-align: center;
-            padding: 30px;
+            padding: 20px;
         }
 
         @media (max-width: 1024px) {
-            #desktop-only-warning { display: flex !important; }
-            #app-container, header, .sidebar, #auth-view, #particle-canvas { 
-                display: none !important; 
-            }
+            #mobile-blocker { display: flex; }
+            #app-container, header, .sidebar, #auth-view, #particle-canvas { display: none !important; }
+            * { cursor: default !important; }
         }
 
-        @media (min-width: 1025px) {
-            #desktop-only-warning { display: none !important; }
-            #app-container { display: block; }
-        }
-        /* --- END WARNING STYLES --- */
-
+        /* --- BACKGROUND & CURSOR --- */
         #particle-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; background: #000000;
@@ -74,6 +68,7 @@
 
         .hidden { display: none !important; }
 
+        /* Animations */
         @keyframes rotate-cw { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes rotate-acw { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
         @keyframes pulse-glow { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
@@ -173,12 +168,13 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-    <div id="desktop-only-warning">
-        <div style="border: 1px solid var(--neon-alt); padding: 50px; border-radius: 20px; background: #050505;">
-            <h1 style="font-family:'Syncopate'; color:var(--neon-main); font-size: 22px; letter-spacing: 2px;">DESKTOP MODE REQUIRED</h1>
-            <p style="color:#fff; font-family:'Space Mono'; margin-top: 25px; font-size: 13px; line-height: 1.6;">
-                ACCESS DENIED VIA MOBILE TERMINAL.<br><br>
-                <span style="color:var(--neon-alt);">ACTION:</span> ENABLE 'DESKTOP SITE' IN YOUR BROWSER SETTINGS TO ESTABLISH CONNECTION.
+    <div id="mobile-blocker">
+        <div style="border: 1px solid var(--neon-alt); padding: 40px; border-radius: 20px; background: #050505; box-shadow: 0 0 30px rgba(255,0,122,0.2);">
+            <div style="font-size: 50px; margin-bottom: 20px;">🚫</div>
+            <h2 style="font-family: 'Syncopate'; color: var(--neon-main); margin-bottom: 15px; font-size: 18px;">DESKTOP MODE REQUIRED</h2>
+            <p style="font-family: 'Space Mono'; color: #ccc; font-size: 12px; line-height: 1.6;">
+                NEURAL MESH ACCESS DENIED VIA MOBILE TERMINAL.<br><br>
+                <span style="color: var(--neon-alt);">ACTION:</span> OPEN BROWSER SETTINGS AND ENABLE <br> <b>"DESKTOP SITE"</b> TO CONNECT.
             </p>
         </div>
     </div>
@@ -206,8 +202,7 @@
                 <div class="thick-border-box">
                     <div class="inner-glow-content">
                         <div class="points-display" style="font-family: 'Space Mono'; font-weight: bold; color: #fff;">
-                            <span id="header-pts" style="font-size: 20px; color: var(--neon-main);">0</span> 
-                            <small style="font-size: 12px; opacity: 0.8; letter-spacing: 2px;">LAST</small>
+                            <span id="header-pts" style="font-size: 20px; color: var(--neon-main);">0</span> <small style="font-size: 12px; opacity: 0.8; letter-spacing: 2px;">LAST</small>
                         </div>
                         <div style="width: 1px; height: 25px; background: rgba(255,255,255,0.2);"></div>
                         <button id="btn-wallet" class="wallet-btn" onclick="handleWalletClick()">CONNECT</button>
@@ -223,68 +218,38 @@
                     <div class="rotating-border-box box-acw"><div class="inner-content stat-card"><p>Today Points</p><h2 id="t-pts">0</h2></div></div>
                     <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><p>Node Rank</p><h2 id="rank-display" style="font-size: 22px;">LOADING...</h2></div></div>
                 </div>
-
                 <div class="progress-box">
-                    <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:900; color:var(--neon-main); font-family: 'Space Mono';">
-                        <span>NETWORK SYNC PROGRESS</span><span id="p-txt" style="color:#fff;">0/5000</span>
-                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:900; color:var(--neon-main); font-family: 'Space Mono';"><span>NETWORK SYNC PROGRESS</span><span id="p-txt" style="color:#fff;">0/5000</span></div>
                     <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
                 </div>
-
                 <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:40px;">
-                    <div class="rotating-border-box box-cw">
-                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px; background: rgba(5,5,5,0.8);">
-                            <p style="margin-bottom:40px; color:var(--neon-main); display: flex; align-items: center; gap: 10px; font-size:14px;">
-                                <span style="width: 10px; height: 10px; background: var(--neon-main); border-radius: 50%;"></span>
-                                HISTORY_LOG
-                            </p>
-                            <div id="history-list"></div>
-                        </div>
-                    </div>
-                    <div class="rotating-border-box box-acw">
-                        <div class="inner-content stat-card" style="text-align:left; min-height: 400px; background: rgba(5,5,5,0.8);">
-                            <p style="margin-bottom:40px; display: flex; align-items: center; gap: 10px; font-size:14px;">
-                                <span style="width: 10px; height: 10px; background: var(--neon-alt); border-radius: 50%;"></span>
-                                LABORHOOD RANKING <span id="my-rank" style="margin-left: auto; color:var(--neon-alt);">#--</span>
-                            </p>
-                            <div id="leaderboard"></div>
-                        </div>
-                    </div>
+                    <div class="rotating-border-box box-cw"><div class="inner-content stat-card" style="text-align:left; min-height: 400px;"><p>HISTORY_LOG</p><div id="history-list"></div></div></div>
+                    <div class="rotating-border-box box-acw"><div class="inner-content stat-card" style="text-align:left; min-height: 400px;"><p>LABORHOOD RANKING</p><div id="leaderboard"></div></div></div>
                 </div>
             </div>
-
+            
             <div id="archive-view" class="tab-content hidden">
-                <div class="rotating-border-box box-cw">
-                    <div class="inner-content stat-card" style="min-height: 600px; text-align: left;">
-                        <h2 style="font-family:'Syncopate'; font-size: 24px; margin-bottom: 10px;">NEURAL_ARCHIVES</h2>
-                        <div class="archive-grid">
-                            <div id="arc-ghost" class="archive-card"><span class="icon">👻</span><h3>NEURAL_GHOST</h3><p>Entry level node.</p></div>
-                            <div id="arc-phantom" class="archive-card"><span class="icon">👽</span><h3>DATA_PHANTOM</h3><p>5,000 pts + 3 Nodes.</p></div>
-                            <div id="arc-architect" class="archive-card"><span class="icon">💠</span><h3>VOID_ARCHITECT</h3><p>15,000 pts + 7 Nodes.</p></div>
-                        </div>
-                    </div>
-                </div>
+                <div class="rotating-border-box box-cw"><div class="inner-content stat-card" style="min-height: 600px;"><h2 style="font-family:'Syncopate';">NEURAL_ARCHIVES</h2><div class="archive-grid">
+                    <div id="arc-ghost" class="archive-card"><span class="icon">👻</span><h3>NEURAL_GHOST</h3><p>Entry level node.</p></div>
+                    <div id="arc-phantom" class="archive-card"><span class="icon">👽</span><h3>DATA_PHANTOM</h3><p>5k LAST + 3 Nodes.</p></div>
+                    <div id="arc-architect" class="archive-card"><span class="icon">💠</span><h3>VOID_ARCHITECT</h3><p>15k LAST + 7 Nodes.</p></div>
+                </div></div></div>
             </div>
 
             <div id="tasks-view" class="tab-content hidden">
-                <div class="rotating-border-box box-cw" style="margin-bottom:20px;">
-                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 40px;">
-                        <div><h2 style="font-size: 26px; font-family:'Syncopate';">Daily Sync</h2><p id="claim-timer" style="color:var(--neon-main); margin-top:12px; font-family: 'Space Mono'; font-size: 13px;">READY</p></div>
-                        <button id="c-btn" class="btn-claim" onclick="claimDaily()">CLAIM</button>
-                    </div>
-                </div>
+                <div class="rotating-border-box box-cw" style="margin-bottom:20px;"><div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center;"><div><h2>Daily Sync</h2><p id="claim-timer">READY</p></div><button id="c-btn" class="btn-claim" onclick="claimDaily()">CLAIM</button></div></div>
             </div>
-
+            
             <div id="referral-view" class="tab-content hidden">
-                <div class="rotating-border-box box-acw"><div class="inner-content stat-card"><p>REFERRAL PROTOCOL</p><button class="btn-claim" onclick="copyRefLink()" style="width:100%; margin-top:30px;">COPY LINK</button></div></div>
+                <div class="rotating-border-box box-acw"><div class="inner-content stat-card"><p>REFERRAL PROTOCOL</p><h2 id="ref-count">0 NODES</h2><button class="btn-claim" onclick="copyRefLink()" style="width:100%; margin-top:20px;">COPY LINK</button></div></div>
             </div>
 
             <div id="presale-view" class="tab-content hidden">
-                <div class="rotating-border-box box-cw"><div class="inner-content stat-card"><h2>PRE-SALE COMING SOON</h2></div></div>
+                <div class="rotating-border-box box-cw" style="min-height: 400px; display: flex; align-items: center; justify-content: center;"><h2 style="font-family:'Syncopate'; color:var(--neon-alt);">COMING SOON</h2></div>
             </div>
 
             <div id="secret-view" class="tab-content hidden">
-                <div class="rotating-border-box box-acw"><div class="inner-content stat-card" style="border: 1px solid var(--neon-alt);"><h2>ACCESS DENIED</h2></div></div>
+                <div class="rotating-border-box box-acw" style="min-height: 400px;"><div class="inner-content stat-card"><h2>ACCESS_DENIED</h2><p>Streak: <span id="current-streak-val">0</span>/60</p></div></div>
             </div>
         </main>
     </div>
@@ -301,59 +266,23 @@
         let user = null;
         let globalRefs = 0;
 
-        // NEW: Detection Logic for Desktop/Mobile
-        function runDeviceCheck() {
-            if (window.innerWidth > 1024) {
-                // If on Desktop or Desktop Mode
-                document.getElementById('desktop-only-warning').style.display = 'none';
-                init(); // Start Supabase logic
-            } else {
-                // If on Mobile
-                document.getElementById('desktop-only-warning').style.display = 'flex';
-                document.getElementById('auth-view').style.display = 'none';
-                document.getElementById('app-container').style.display = 'none';
-            }
-        }
+        // Same Logic
+        function toggleSidebar(e) { e.stopPropagation(); document.getElementById('sidebar').classList.toggle('active'); }
+        function handleGlobalClick(e) { const sb = document.getElementById('sidebar'); if (sb.classList.contains('active') && !sb.contains(e.target)) sb.classList.remove('active'); }
 
-        async function init() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) {
-                const params = new URLSearchParams(window.location.search);
-                await fetchUser(session.user.id, params.get('ref'));
-                fetchHistory(); 
-                fetchLeaderboard();
-                setInterval(updateCountdown, 1000);
-            } else {
-                document.getElementById('auth-view').classList.remove('hidden');
-                document.getElementById('auth-view').style.display = 'flex';
-            }
-        }
-
-        // Particle System (Your exact code)
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', () => { resize(); runDeviceCheck(); });
-        resize();
+        window.addEventListener('resize', resize); resize();
 
         class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2.5; this.speedX = Math.random() * 1.2 - 0.6; this.speedY = Math.random() * 1.2 - 0.6;
-            }
-            update() {
-                this.x += this.speedX; this.y += this.speedY;
-                if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width;
-                if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height;
-            }
+            constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2.5; this.speedX = Math.random() * 1.2 - 0.6; this.speedY = Math.random() * 1.2 - 0.6; }
+            update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width; if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height; }
             draw() { ctx.fillStyle = 'rgba(0, 255, 204, 0.4)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
         }
 
-        function initParticles() {
-            particles = []; const count = (canvas.width * canvas.height) / 10000;
-            for (let i = 0; i < Math.max(count, 150); i++) particles.push(new Particle());
-        }
+        function initParticles() { particles = []; const count = (canvas.width * canvas.height) / 10000; for (let i = 0; i < Math.max(count, 150); i++) particles.push(new Particle()); }
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach((p, i) => {
@@ -367,27 +296,25 @@
         }
         initParticles(); animate();
 
-        // Cursor & Sidebar logic as provided
         window.addEventListener('mousemove', (e) => { 
             document.getElementById('cursor-dot').style.left = e.x + 'px'; document.getElementById('cursor-dot').style.top = e.y + 'px';
             document.getElementById('cursor-outline').style.left = (e.x-20) + 'px'; document.getElementById('cursor-outline').style.top = (e.y-20) + 'px';
         });
 
-        function toggleSidebar(e) { e.stopPropagation(); document.getElementById('sidebar').classList.toggle('active'); }
-        function handleGlobalClick(e) {
-            const sb = document.getElementById('sidebar');
-            if (sb && sb.classList.contains('active') && !sb.contains(e.target)) sb.classList.remove('active');
-        }
-
-        /* --- REST OF YOUR FUNCTIONS (fetchUser, updateUI, claimDaily, etc.) --- */
         async function login() { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
         
+        async function init() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                const params = new URLSearchParams(window.location.search);
+                await fetchUser(session.user.id, params.get('ref'));
+                fetchHistory(); fetchLeaderboard(); setInterval(updateCountdown, 1000);
+            }
+        }
+
         async function fetchUser(id, rid) {
             let { data: p } = await _supabase.from('profiles').select('*').eq('id', id).single();
-            if (!p) {
-                const { data } = await _supabase.from('profiles').insert([{ id, balance: 0, referred_by: rid }]).select().single();
-                p = data;
-            }
+            if (!p) { const { data } = await _supabase.from('profiles').insert([{ id, balance: 0, referred_by: rid }]).select().single(); p = data; }
             user = p; await fetchRefCount(); updateUI();
         }
 
@@ -396,14 +323,11 @@
             document.getElementById('app-container').classList.remove('hidden');
             document.getElementById('header-pts').innerText = user.balance;
             document.getElementById('s-val').innerText = (user.streak || 0) + "d";
+            document.getElementById('current-streak-val').innerText = user.streak || 0;
             document.getElementById('p-txt').innerText = `${user.balance}/5000`;
             document.getElementById('bar').style.width = Math.min((user.balance/5000)*100, 100) + "%";
             calculateRank();
-            if(user.wallet_address) {
-                const wb = document.getElementById('btn-wallet');
-                wb.innerText = user.wallet_address.slice(0,5)+"..."+user.wallet_address.slice(-4);
-                wb.style.background = "var(--neon-alt)"; wb.style.color = "#fff";
-            }
+            if(user.wallet_address) { const wb = document.getElementById('btn-wallet'); wb.innerText = user.wallet_address.slice(0,5)+"..."+user.wallet_address.slice(-4); wb.style.background = "var(--neon-alt)"; wb.style.color = "#fff"; }
         }
 
         async function fetchHistory() {
@@ -411,23 +335,22 @@
             let todaySum = 0; const today = new Date().toDateString();
             document.getElementById('history-list').innerHTML = data.map(h => {
                 if(new Date(h.completed_at).toDateString() === today) todaySum += h.points;
-                return `<div class="lb-item" style="font-size:12px;"><span>${h.task_name}</span><b style="color:var(--neon-main);">+${h.points}</b></div>`;
+                return `<div class="lb-item"><span>${h.task_name}</span><b>+${h.points}</b></div>`;
             }).join('') || '<p>EMPTY</p>';
             document.getElementById('t-pts').innerText = todaySum;
         }
 
         async function fetchLeaderboard() {
             const { data } = await _supabase.from('profiles').select('id, balance').order('balance', { ascending: false }).limit(10);
-            document.getElementById('leaderboard').innerHTML = data.map((u, i) => `<div class="lb-item"><span>#${i+1} NODE_${u.id.slice(-4)}</span><b>${u.balance}</b></div>`).join('');
+            document.getElementById('leaderboard').innerHTML = data.map((u, i) => `<div class="lb-item"><span>#${i+1} NODE_${u.id.slice(-4)}</span><b>${u.balance} LAST</b></div>`).join('');
         }
 
         function updateCountdown() {
-            const lbl = document.getElementById('claim-timer');
-            if(!user.wallet_address) { lbl.innerText = "CONNECT WALLET"; return; }
-            if(!user.last_checkin) { lbl.innerText = "READY"; return; }
+            const btn = document.getElementById('c-btn'); const lbl = document.getElementById('claim-timer');
+            if(!user.wallet_address) { lbl.innerText = "CONNECT WALLET"; btn.disabled = true; return; }
+            if(!user.last_checkin) { lbl.innerText = "READY"; btn.disabled = false; return; }
             const diff = (new Date(user.last_checkin).getTime() + 86400000) - Date.now();
-            if(diff > 0) { lbl.innerText = `NEXT: ${Math.floor(diff/3600000)}h ${Math.floor((diff%3600000)/60000)}m`; document.getElementById('c-btn').disabled = true; }
-            else { lbl.innerText = "READY"; document.getElementById('c-btn').disabled = false; }
+            if(diff > 0) { lbl.innerText = `NEXT: ${Math.floor(diff/3600000)}h`; btn.disabled = true; } else { lbl.innerText = "READY"; btn.disabled = false; }
         }
 
         async function claimDaily() {
@@ -436,35 +359,20 @@
         }
 
         async function handleWalletClick() {
-            if(window.ethereum) {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                await _supabase.from('profiles').update({ wallet_address: accounts[0] }).eq('id', user.id);
-                location.reload();
-            }
+            if(window.ethereum) { const accs = await window.ethereum.request({ method: 'eth_requestAccounts' }); await _supabase.from('profiles').update({ wallet_address: accs[0] }).eq('id', user.id); location.reload(); }
         }
 
         function calculateRank() {
-            let rank = { name: "GHOST", class: "rank-ghost" };
-            if(user.balance >= 5000) rank = { name: "PHANTOM", class: "rank-phantom" };
+            let rank = { name: "NEURAL_GHOST", class: "rank-ghost" };
+            if(user.balance >= 5000) rank = { name: "DATA_PHANTOM", class: "rank-phantom" };
             document.getElementById('rank-display').innerHTML = `${rank.name} <span class="badge-tag ${rank.class}">ACTIVE</span>`;
         }
 
-        async function fetchRefCount() {
-            const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id);
-            globalRefs = count || 0;
-        }
-
-        function switchTab(id, title) {
-            document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            document.getElementById('page-title').innerText = title;
-        }
-
+        async function fetchRefCount() { const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id); globalRefs = count || 0; document.getElementById('ref-count').innerText = `${globalRefs} NODES`; }
+        function switchTab(id, title) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); document.getElementById('page-title').innerText = title; document.getElementById('sidebar').classList.remove('active'); }
         function copyRefLink() { navigator.clipboard.writeText(`${window.location.origin}/?ref=${user.id}`); alert("Copied!"); }
         async function logout() { await _supabase.auth.signOut(); location.reload(); }
-
-        // Trigger on load
-        window.onload = runDeviceCheck;
+        window.onload = init;
     </script>
 </body>
 </html>
