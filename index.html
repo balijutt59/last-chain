@@ -29,7 +29,6 @@
             transition: filter 1s ease;
         }
 
-        /* --- ADDED: MOBILE BLOCKER OVERLAY --- */
         #mobile-blocker {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -45,7 +44,6 @@
         #mobile-blocker h2 { font-family: 'Syncopate'; color: var(--neon-main); font-size: 20px; margin-bottom: 15px; }
         #mobile-blocker p { font-family: 'Space Mono'; font-size: 13px; color: #888; line-height: 1.6; }
 
-        /* Media Query: 900px se niche blocker dikhega, 980px (Desktop Mode) par nahi dikhega */
         @media (max-width: 900px) {
             #mobile-blocker { display: flex !important; }
             #app-container, header, #sidebar, #auth-view { display: none !important; }
@@ -298,6 +296,16 @@
                     </div>
                 </div>
 
+                <div class="rotating-border-box box-cw" style="margin-bottom:20px;">
+                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 40px;">
+                        <div>
+                            <h2 style="font-size: 26px; font-family:'Syncopate';">Node ID Sync</h2>
+                            <p id="w-status" style="color:var(--neon-main); margin-top:12px; font-family: 'Space Mono'; font-size: 13px;">REWARD: +1000 LAST_POINTS</p>
+                        </div>
+                        <button id="w-claim-btn" class="btn-claim" onclick="claimWalletTask()" style="padding: 18px 45px;">CLAIM</button>
+                    </div>
+                </div>
+
                 <div class="rotating-border-box box-acw" style="margin-bottom:20px;">
                     <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 40px;">
                         <div>
@@ -308,6 +316,16 @@
                             <a href="https://x.com/Aman_ullah56" target="_blank" onclick="enableTwitterClaim()" class="btn-claim" style="text-decoration:none; background:transparent; border:1px solid var(--neon-main); color:var(--neon-main); padding: 18px 30px; display: flex; align-items: center;">GO_TO_X</a>
                             <button id="t-claim-btn" class="btn-claim" onclick="claimTwitter()" style="padding: 18px 45px;" disabled>CLAIM</button>
                         </div>
+                    </div>
+                </div>
+
+                <div class="rotating-border-box box-acw" style="margin-bottom:20px;">
+                    <div class="inner-content stat-card" style="display:flex; justify-content:space-between; align-items:center; padding: 40px;">
+                        <div>
+                            <h2 style="font-size: 26px; font-family:'Syncopate';">Branding Protocol</h2>
+                            <p id="b-status" style="color:#ccc; margin-top:12px; font-family: 'Space Mono'; font-size: 13px;">ADD "⚡ LAST" TO YOUR X BIO. REWARD: +500 LAST</p>
+                        </div>
+                        <button id="b-claim-btn" class="btn-claim" onclick="claimBioTask()" style="padding: 18px 45px;">VERIFY</button>
                     </div>
                 </div>
             </div>
@@ -488,13 +506,30 @@
             const { data } = await _supabase.from('task_history').select('*').eq('user_id', user.id).order('completed_at', { ascending: false });
             const today = new Date().toDateString();
             let todaySum = 0;
+            
+            // Reset status
+            document.getElementById('t-claim-btn').disabled = true; 
+            document.getElementById('w-claim-btn').disabled = false;
+            document.getElementById('b-claim-btn').disabled = false;
+
             document.getElementById('history-list').innerHTML = data.map(h => {
                 const hDate = new Date(h.completed_at);
                 if(hDate.toDateString() === today) todaySum += h.points;
+                
+                // Task Specific Check
                 if(h.task_name === 'Twitter Follow') {
                     document.getElementById('t-claim-btn').disabled = true;
                     document.getElementById('t-status').innerText = "TASK_COMPLETED";
                 }
+                if(h.task_name === 'Node ID Sync') {
+                    document.getElementById('w-claim-btn').disabled = true;
+                    document.getElementById('w-status').innerText = "TASK_COMPLETED";
+                }
+                if(h.task_name === 'Branding Protocol') {
+                    document.getElementById('b-claim-btn').disabled = true;
+                    document.getElementById('b-status').innerText = "TASK_COMPLETED";
+                }
+
                 return `<div class="lb-item" style="font-size:12px;"><span>${h.task_name}</span><b style="color:var(--neon-main);">+${h.points}</b></div>`;
             }).join('') || '<p style="color:#555; font-size:12px;">EMPTY_LOG_FILE</p>';
             document.getElementById('t-pts').innerText = todaySum;
@@ -544,11 +579,33 @@
 
         async function claimTwitter() {
             if(!user.wallet_address) { alert("Connect Wallet first!"); return; }
-            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 500 }).eq('id', user.id);
+            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 300 }).eq('id', user.id);
             if(!error) {
-                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 500 }]);
-                alert("Verified: +500 LAST");
+                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 300 }]);
+                alert("Verified: +300 LAST");
                 location.reload();
+            }
+        }
+
+        async function claimWalletTask() {
+            if(!user.wallet_address) { alert("Pehle main dashboard par wallet CONNECT karein!"); return; }
+            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 1000 }).eq('id', user.id);
+            if(!error) {
+                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Node ID Sync', points: 1000 }]);
+                alert("Success: +1000 LAST points added!");
+                location.reload();
+            }
+        }
+
+        async function claimBioTask() {
+            let check = confirm("Kya aapne apne Twitter Bio mein '⚡ LAST' likh diya hai?");
+            if(check) {
+                const { error } = await _supabase.from('profiles').update({ balance: user.balance + 500 }).eq('id', user.id);
+                if(!error) {
+                    await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Branding Protocol', points: 500 }]);
+                    alert("Verified: +500 LAST added!");
+                    location.reload();
+                }
             }
         }
 
