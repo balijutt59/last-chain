@@ -29,6 +29,38 @@
             transition: filter 1s ease;
         }
 
+        /* ID Card Specific Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 2000; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(10px);
+        }
+        .id-card {
+            width: 350px; height: 520px; background: #08080a; border-radius: 20px;
+            position: relative; overflow: hidden; border: 2px solid var(--neon-main);
+            padding: 30px; text-align: center; box-shadow: 0 0 50px rgba(0,255,204,0.2);
+        }
+        .id-rank-bg {
+            position: absolute; top: -30px; right: -30px; font-size: 100px;
+            opacity: 0.05; font-family: 'Syncopate'; transform: rotate(-20deg); pointer-events: none;
+        }
+        .id-photo {
+            width: 90px; height: 90px; background: #111; margin: 0 auto 20px;
+            border-radius: 50%; border: 2px solid var(--neon-main);
+            display: flex; align-items: center; justify-content: center; font-size: 40px;
+        }
+        .id-card h3 { font-family: 'Syncopate'; font-size: 16px; margin-bottom: 5px; color: #fff; }
+        .id-rank-tag-card { font-size: 9px; padding: 4px 12px; border-radius: 50px; display: inline-block; margin-bottom: 25px; font-family: 'Syncopate'; font-weight: bold; }
+        .id-stats { text-align: left; font-family: 'Space Mono'; font-size: 11px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+        .id-stats div { margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .id-stats span { color: var(--neon-main); }
+        .close-id { margin-top: 25px; cursor: pointer; color: #555; font-family: 'Syncopate'; font-size: 9px; transition: 0.3s; }
+        .card-ghost { border-color: #00ffcc; }
+        .card-phantom { border-color: #00d2ff; }
+        .card-architect { border-color: #ff007a; }
+        .card-overlord { border-color: #ffffff; box-shadow: 0 0 40px rgba(255,255,255,0.2); }
+
+        /* Rest of existing styles */
         #mobile-blocker {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -210,6 +242,7 @@
             transition: 0.3s;
             display: inline-block;
             margin: 5px;
+            cursor: pointer;
         }
         .action-link:hover {
             border-color: var(--neon-main);
@@ -219,6 +252,29 @@
     </style>
 </head>
 <body onclick="handleGlobalClick(event)">
+
+    <div id="id-modal" class="modal-overlay" onclick="closeIDCard()">
+        <div class="id-card" id="main-id-card" onclick="event.stopPropagation()">
+            <div class="id-rank-bg" id="id-bg-text">GHOST</div>
+            <div class="id-photo" id="id-icon">👻</div>
+            <h3 id="id-name">USER_NODE</h3>
+            <div id="id-rank-tag-card" class="id-rank-tag-card rank-ghost">NEURAL_GHOST</div>
+            
+            <div class="id-stats">
+                <div>NODE ID: <span id="id-uid">#0000</span></div>
+                <div>STATUS: <span style="color: #00ff00;">ENCRYPTED</span></div>
+                <div>STREAK: <span id="id-streak">0 DAYS</span></div>
+                <div>BALANCE: <span id="id-bal">0 LAST</span></div>
+                <div>NETWORK: <span id="id-ref">0 NODES</span></div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <img id="qr-mock" src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=lastchain" style="filter: invert(1); opacity: 0.8; width: 70px;">
+            </div>
+            
+            <div class="close-id" onclick="closeIDCard()">[ TERMINATE_VIEW ]</div>
+        </div>
+    </div>
 
     <div id="mobile-blocker">
         <div style="font-size: 50px; margin-bottom: 20px;">🖥️</div>
@@ -301,7 +357,7 @@
                 </div>
 
                 <div class="network-grid">
-                    <div class="mini-stat"><label>UPLINK_SPEED</label><span id="uplink-val">42.8 Mb/s</span></div>
+                    <div class="mini-stat"><label>UPLINK_SPEED</label><span id="uplink-val">2.8 Mb/s</span></div>
                     <div class="mini-stat"><label>ENCRYPTION</label><span style="color:var(--neon-main)">AES-256</span></div>
                     <div class="mini-stat"><label>PACKET_LOSS</label><span>0.001%</span></div>
                     <div class="mini-stat"><label>TOTAL_NODES</label><span id="node-count-live">--</span></div>
@@ -317,9 +373,9 @@
                     <div style="width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,255,204,0.3), transparent); margin-bottom: 40px;"></div>
                     <h4 style="font-family: 'Syncopate'; font-size: 10px; color: #444; letter-spacing: 5px; margin-bottom: 25px;">QUICK_ACCESS_PROTOCOLS</h4>
                     <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                        <a onclick="openIDCard()" class="action-link" style="border-color: var(--neon-main); color: var(--neon-main);">[ VIEW_IDENTITY_BADGE ]</a>
                         <a href="https://x.com/Aman_ullah56" target="_blank" class="action-link">[ X_TWITTER ]</a>
                         <a href="#" class="action-link">[ TELEGRAM ]</a>
-                        <a href="#" class="action-link">[ DISCORD ]</a>
                         <a href="#" class="action-link" style="border-color: rgba(255,0,122,0.2);">[ WHITEPAPER ]</a>
                     </div>
                     <div style="margin-top: 50px; opacity: 0.4;">
@@ -463,6 +519,39 @@
         let user = null;
         let globalRefs = 0;
 
+        // IDENTITY CARD LOGIC
+        function openIDCard() {
+            if(!user) return;
+            const pts = user.balance;
+            const refs = globalRefs;
+            let rank = { name: "NEURAL_GHOST", class: "rank-ghost", icon: "👻", cardClass: "card-ghost" };
+
+            if(pts >= 500000 && refs >= 200) rank = { name: "THE_LAST_SOURCE", class: "rank-source", icon: "👑", cardClass: "card-overlord" };
+            else if(pts >= 100000 && refs >= 50) rank = { name: "SYSTEM_OVERLORD", class: "rank-overlord", icon: "🗽", cardClass: "card-overlord" };
+            else if(pts >= 15000 && refs >= 7) rank = { name: "VOID_ARCHITECT", class: "rank-architect", icon: "💠", cardClass: "card-architect" };
+            else if(pts >= 5000 && refs >= 3) rank = { name: "DATA_PHANTOM", class: "rank-phantom", icon: "👽", cardClass: "card-phantom" };
+
+            document.getElementById('id-name').innerText = "NODE_" + user.id.slice(-6).toUpperCase();
+            document.getElementById('id-uid').innerText = "#" + user.id.slice(-4);
+            document.getElementById('id-streak').innerText = (user.streak || 0) + " DAYS";
+            document.getElementById('id-bal').innerText = user.balance + " LAST";
+            document.getElementById('id-ref').innerText = globalRefs + " NODES";
+            document.getElementById('id-icon').innerText = rank.icon;
+            document.getElementById('id-bg-text').innerText = rank.name.split('_')[1] || rank.name;
+            
+            const tag = document.getElementById('id-rank-tag-card');
+            tag.innerText = rank.name;
+            tag.className = "id-rank-tag-card " + rank.class;
+            
+            document.getElementById('main-id-card').className = "id-card " + rank.cardClass;
+            document.getElementById('id-modal').style.display = 'flex';
+        }
+
+        function closeIDCard() {
+            document.getElementById('id-modal').style.display = 'none';
+        }
+
+        // --- EXISTING SYSTEM FUNCTIONS ---
         function toggleSidebar(e) { e.stopPropagation(); document.getElementById('sidebar').classList.toggle('active'); }
         function handleGlobalClick(e) {
             const sb = document.getElementById('sidebar');
@@ -552,7 +641,6 @@
                 const { data } = await _supabase.from('profiles').insert([{ id, balance: 0, referred_by: rid }]).select().single();
                 p = data;
             }
-
             if (p.last_checkin) {
                 const lastCheckinTime = new Date(p.last_checkin).getTime();
                 const hoursPassed = (Date.now() - lastCheckinTime) / (1000 * 60 * 60);
@@ -561,7 +649,6 @@
                     p.streak = 0;
                 }
             }
-            
             user = p;
             await fetchRefCount();
             updateUI();
@@ -615,34 +702,10 @@
             } else { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; }
         }
 
-        // --- UPDATED MULTIPLIER LOGIC ---
         async function claimDaily() {
             if(!user.wallet_address) return;
-            
-            let currentStreak = (user.streak || 0) + 1;
-            let baseReward = 100;
-            let multiplier = 1;
-
-            if (currentStreak > 20) multiplier = 3;
-            else if (currentStreak > 10) multiplier = 2;
-            else if (currentStreak > 5) multiplier = 1.5;
-
-            let finalReward = baseReward * multiplier;
-
-            const { error } = await _supabase.from('profiles').update({ 
-                balance: user.balance + finalReward, 
-                streak: currentStreak, 
-                last_checkin: new Date().toISOString() 
-            }).eq('id', user.id);
-
-            if(!error) { 
-                await _supabase.from('task_history').insert([{ 
-                    user_id: user.id, 
-                    task_name: `Daily Sync (${multiplier}x)`, 
-                    points: finalReward 
-                }]); 
-                location.reload(); 
-            }
+            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 100, streak: (user.streak || 0) + 1, last_checkin: new Date().toISOString() }).eq('id', user.id);
+            if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]); location.reload(); }
         }
 
         function enableTwitterClaim() { const btn = document.getElementById('t-claim-btn'); btn.disabled = false; btn.style.background = "var(--neon-main)"; }
