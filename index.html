@@ -553,7 +553,6 @@
                 p = data;
             }
 
-            // --- AUTO STREAK RESET LOGIC (Added) ---
             if (p.last_checkin) {
                 const lastCheckinTime = new Date(p.last_checkin).getTime();
                 const hoursPassed = (Date.now() - lastCheckinTime) / (1000 * 60 * 60);
@@ -616,10 +615,34 @@
             } else { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; }
         }
 
+        // --- UPDATED MULTIPLIER LOGIC ---
         async function claimDaily() {
             if(!user.wallet_address) return;
-            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 100, streak: (user.streak || 0) + 1, last_checkin: new Date().toISOString() }).eq('id', user.id);
-            if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]); location.reload(); }
+            
+            let currentStreak = (user.streak || 0) + 1;
+            let baseReward = 100;
+            let multiplier = 1;
+
+            if (currentStreak > 20) multiplier = 3;
+            else if (currentStreak > 10) multiplier = 2;
+            else if (currentStreak > 5) multiplier = 1.5;
+
+            let finalReward = baseReward * multiplier;
+
+            const { error } = await _supabase.from('profiles').update({ 
+                balance: user.balance + finalReward, 
+                streak: currentStreak, 
+                last_checkin: new Date().toISOString() 
+            }).eq('id', user.id);
+
+            if(!error) { 
+                await _supabase.from('task_history').insert([{ 
+                    user_id: user.id, 
+                    task_name: `Daily Sync (${multiplier}x)`, 
+                    points: finalReward 
+                }]); 
+                location.reload(); 
+            }
         }
 
         function enableTwitterClaim() { const btn = document.getElementById('t-claim-btn'); btn.disabled = false; btn.style.background = "var(--neon-main)"; }
