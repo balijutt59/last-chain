@@ -195,7 +195,29 @@
         .mini-stat label { display: block; font-size: 9px; color: #666; font-family: 'Syncopate'; margin-bottom: 5px; }
         .mini-stat span { font-family: 'Space Mono'; color: #fff; font-size: 14px; }
         
-        .footer-filler { margin-top: 60px; padding-bottom: 80px; text-align: center; }
+        /* NEW ACTION FOOTER STYLE */
+        .footer-actions { 
+            margin-top: 60px; 
+            padding-bottom: 100px; 
+            text-align: center; 
+        }
+        .action-link {
+            text-decoration: none; 
+            padding: 12px 25px; 
+            border: 1px solid #222; 
+            border-radius: 12px; 
+            font-family: 'Space Mono'; 
+            font-size: 11px; 
+            color: #888; 
+            transition: 0.3s;
+            display: inline-block;
+            margin: 5px;
+        }
+        .action-link:hover {
+            border-color: var(--neon-main);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+        }
     </style>
 </head>
 <body onclick="handleGlobalClick(event)">
@@ -293,23 +315,25 @@
                     </div>
                 </div>
 
-                <div class="footer-filler">
-                    <div style="width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,255,204,0.2), transparent); margin-bottom: 30px;"></div>
-                    <div style="display: flex; justify-content: center; gap: 40px; margin-bottom: 25px;">
-                        <div style="text-align: center;">
-                            <p style="font-family: 'Syncopate'; font-size: 8px; color: #555; margin-bottom: 5px;">NETWORK_HEALTH</p>
-                            <p style="color: var(--neon-main); font-family: 'Space Mono'; font-size: 12px;">99.9% OPTIMAL</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <p style="font-family: 'Syncopate'; font-size: 8px; color: #555; margin-bottom: 5px;">DATA_STREAM</p>
-                            <p style="color: var(--neon-main); font-family: 'Space Mono'; font-size: 12px;">ENCRYPTED</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <p style="font-family: 'Syncopate'; font-size: 8px; color: #555; margin-bottom: 5px;">LOCATION</p>
-                            <p style="color: var(--neon-main); font-family: 'Space Mono'; font-size: 12px;">NEURAL_VOID</p>
-                        </div>
+                <div class="footer-actions">
+                    <div style="width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,255,204,0.3), transparent); margin-bottom: 40px;"></div>
+                    
+                    <h4 style="font-family: 'Syncopate'; font-size: 10px; color: #444; letter-spacing: 5px; margin-bottom: 25px;">QUICK_ACCESS_PROTOCOLS</h4>
+                    
+                    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                        <a href="https://x.com/Aman_ullah56" target="_blank" class="action-link">[ X_TWITTER ]</a>
+                        <a href="#" class="action-link">[ TELEGRAM ]</a>
+                        <a href="#" class="action-link">[ DISCORD ]</a>
+                        <a href="#" class="action-link" style="border-color: rgba(255,0,122,0.2);">[ WHITEPAPER ]</a>
                     </div>
-                    <p style="font-family: 'Space Mono'; font-size: 10px; color: #333; letter-spacing: 3px;">LAST_CHAIN © 2026 // ALL_RIGHTS_RESERVED_FOR_LABORHOOD</p>
+
+                    <div style="margin-top: 50px; opacity: 0.4;">
+                        <p style="font-family: 'Space Mono'; font-size: 9px; color: #666; letter-spacing: 2px;">
+                            NODE_STATUS: <span style="color: var(--neon-main)">ONLINE</span> // 
+                            BUILD_VER: 2.0.6-STABLE // 
+                            © 2026 LAST_CHAIN
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -527,6 +551,7 @@
         /* --- Terminal Logic --- */
         function updateTerminal() {
             const feed = document.getElementById('terminal-feed');
+            if(!feed) return;
             const logs = [
                 `> Syncing Node_${Math.random().toString(16).slice(2,6)}... SUCCESS`,
                 `> Data packet encrypted with SHA-256`,
@@ -545,7 +570,8 @@
             feed.appendChild(line);
             if(feed.children.length > 15) feed.removeChild(feed.children[1]); // Keep the header
             
-            document.getElementById('uplink-val').innerText = (40 + Math.random()*5).toFixed(1) + " Mb/s";
+            const upVal = document.getElementById('uplink-val');
+            if(upVal) upVal.innerText = (40 + Math.random()*5).toFixed(1) + " Mb/s";
         }
         setInterval(updateTerminal, 2500);
 
