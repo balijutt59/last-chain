@@ -165,7 +165,6 @@
         .archive-card p { font-size: 10px; font-family: 'Space Mono'; color: #888; line-height: 1.4; }
         .archive-card .icon { font-size: 40px; margin-bottom: 15px; display: block; }
 
-        /* --- STYLING FOR NEW BOTTOM ELEMENTS --- */
         .terminal-container {
             font-family: 'Space Mono', monospace;
             background: #000;
@@ -173,7 +172,7 @@
             padding: 25px;
             color: var(--neon-main);
             font-size: 11px;
-            height: 300px; /* Increased height to fill space */
+            height: 300px;
             overflow-y: hidden;
             margin-top: 40px;
             border-radius: 0 0 38px 38px;
@@ -195,7 +194,6 @@
         .mini-stat label { display: block; font-size: 9px; color: #666; font-family: 'Syncopate'; margin-bottom: 5px; }
         .mini-stat span { font-family: 'Space Mono'; color: #fff; font-size: 14px; }
         
-        /* NEW ACTION FOOTER STYLE */
         .footer-actions { 
             margin-top: 60px; 
             padding-bottom: 100px; 
@@ -317,16 +315,13 @@
 
                 <div class="footer-actions">
                     <div style="width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,255,204,0.3), transparent); margin-bottom: 40px;"></div>
-                    
                     <h4 style="font-family: 'Syncopate'; font-size: 10px; color: #444; letter-spacing: 5px; margin-bottom: 25px;">QUICK_ACCESS_PROTOCOLS</h4>
-                    
                     <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
                         <a href="https://x.com/Aman_ullah56" target="_blank" class="action-link">[ X_TWITTER ]</a>
                         <a href="#" class="action-link">[ TELEGRAM ]</a>
                         <a href="#" class="action-link">[ DISCORD ]</a>
                         <a href="#" class="action-link" style="border-color: rgba(255,0,122,0.2);">[ WHITEPAPER ]</a>
                     </div>
-
                     <div style="margin-top: 50px; opacity: 0.4;">
                         <p style="font-family: 'Space Mono'; font-size: 9px; color: #666; letter-spacing: 2px;">
                             NODE_STATUS: <span style="color: var(--neon-main)">ONLINE</span> // 
@@ -342,7 +337,6 @@
                     <div class="inner-content stat-card" style="min-height: 600px; text-align: left;">
                         <h2 style="font-family:'Syncopate'; font-size: 24px; margin-bottom: 10px;">NEURAL_ARCHIVES</h2>
                         <p style="color:var(--neon-main); font-family:'Space Mono'; margin-bottom: 40px; font-size:13px;">Unlocked nodes represent your permanent status in the mesh.</p>
-                        
                         <div class="archive-grid">
                             <div id="arc-ghost" class="archive-card">
                                 <span class="icon">👻</span>
@@ -475,17 +469,11 @@
             if (sb.classList.contains('active') && !sb.contains(e.target)) sb.classList.remove('active');
         }
 
-        /* --- Particle System --- */
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
 
         class Particle {
             constructor() {
@@ -496,86 +484,56 @@
                 this.speedY = Math.random() * 1.2 - 0.6;
             }
             update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.x < 0) this.x = canvas.width;
-                if (this.y > canvas.height) this.y = 0;
-                if (this.y < 0) this.y = canvas.height;
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height;
             }
             draw() {
                 ctx.fillStyle = 'rgba(0, 255, 204, 0.4)';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
-
         function initParticles() {
             particles = [];
             const count = (canvas.width * canvas.height) / 10000;
-            for (let i = 0; i < Math.max(count, 150); i++) {
-                particles.push(new Particle());
-            }
+            for (let i = 0; i < Math.max(count, 150); i++) particles.push(new Particle());
         }
-
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach((p, i) => {
-                p.update();
-                p.draw();
+                p.update(); p.draw();
                 for (let j = i; j < particles.length; j++) {
-                    const dx = p.x - particles[j].x;
-                    const dy = p.y - particles[j].y;
+                    const dx = p.x - particles[j].x; const dy = p.y - particles[j].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < 150) {
                         ctx.strokeStyle = `rgba(0, 255, 204, ${0.2 - dist / 750})`;
-                        ctx.lineWidth = 0.8;
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
+                        ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
                     }
                 }
             });
             requestAnimationFrame(animate);
         }
-        initParticles();
-        animate();
+        initParticles(); animate();
 
         window.addEventListener('mousemove', (e) => { 
             document.getElementById('cursor-dot').style.left = e.x + 'px'; document.getElementById('cursor-dot').style.top = e.y + 'px';
             document.getElementById('cursor-outline').style.left = (e.x-20) + 'px'; document.getElementById('cursor-outline').style.top = (e.y-20) + 'px';
         });
 
-        /* --- Terminal Logic --- */
         function updateTerminal() {
             const feed = document.getElementById('terminal-feed');
             if(!feed) return;
-            const logs = [
-                `> Syncing Node_${Math.random().toString(16).slice(2,6)}... SUCCESS`,
-                `> Data packet encrypted with SHA-256`,
-                `> Acknowledging Laborhood Mesh layer 0x${Math.floor(Math.random()*999)}`,
-                `> Network load: ${Math.floor(Math.random()*40)}%`,
-                `> Uplink stable. latency: ${Math.floor(Math.random()*50)+10}ms`,
-                `> Monitoring quantum fluctuations...`,
-                `> Heartbeat signal received from Architect Node.`,
-                `> Packet transmission: VERIFIED`,
-                `> [SECURE] Tunneling through Layer-2 nodes...`
-            ];
+            const logs = [`> Syncing Node_${Math.random().toString(16).slice(2,6)}... SUCCESS`,`> Data packet encrypted`,`> Network load: ${Math.floor(Math.random()*40)}%`,`> Uplink stable: ${Math.floor(Math.random()*50)+10}ms` ];
             const line = document.createElement('div');
-            line.className = "terminal-line";
-            line.style.marginTop = "5px";
+            line.className = "terminal-line"; line.style.marginTop = "5px";
             line.innerText = logs[Math.floor(Math.random()*logs.length)];
             feed.appendChild(line);
-            if(feed.children.length > 15) feed.removeChild(feed.children[1]); // Keep the header
-            
+            if(feed.children.length > 15) feed.removeChild(feed.children[1]);
             const upVal = document.getElementById('uplink-val');
             if(upVal) upVal.innerText = (40 + Math.random()*5).toFixed(1) + " Mb/s";
         }
         setInterval(updateTerminal, 2500);
 
-        /* --- Supabase & User Logic --- */
         async function login() { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
         
         async function init() {
@@ -583,8 +541,7 @@
             if (session) {
                 const params = new URLSearchParams(window.location.search);
                 await fetchUser(session.user.id, params.get('ref'));
-                fetchHistory(); 
-                fetchLeaderboard();
+                fetchHistory(); fetchLeaderboard();
                 setInterval(updateCountdown, 1000);
             }
         }
@@ -595,6 +552,17 @@
                 const { data } = await _supabase.from('profiles').insert([{ id, balance: 0, referred_by: rid }]).select().single();
                 p = data;
             }
+
+            // --- AUTO STREAK RESET LOGIC (Added) ---
+            if (p.last_checkin) {
+                const lastCheckinTime = new Date(p.last_checkin).getTime();
+                const hoursPassed = (Date.now() - lastCheckinTime) / (1000 * 60 * 60);
+                if (hoursPassed > 48) {
+                    await _supabase.from('profiles').update({ streak: 0 }).eq('id', id);
+                    p.streak = 0;
+                }
+            }
+            
             user = p;
             await fetchRefCount();
             updateUI();
@@ -620,114 +588,68 @@
             const wb = document.getElementById('btn-wallet');
             if(user.wallet_address) {
                 wb.innerText = user.wallet_address.slice(0,5)+"..."+user.wallet_address.slice(-4);
-                wb.style.background = "var(--neon-alt)";
-                wb.style.color = "#fff";
+                wb.style.background = "var(--neon-alt)"; wb.style.color = "#fff";
             }
         }
 
         async function fetchHistory() {
             const { data } = await _supabase.from('task_history').select('*').eq('user_id', user.id).order('completed_at', { ascending: false });
-            const today = new Date().toDateString();
-            let todaySum = 0;
-            
+            const today = new Date().toDateString(); let todaySum = 0;
             document.getElementById('history-list').innerHTML = data.map(h => {
-                const hDate = new Date(h.completed_at);
-                if(hDate.toDateString() === today) todaySum += h.points;
-                
-                if(h.task_name === 'Twitter Follow') {
-                    document.getElementById('t-claim-btn').disabled = true;
-                    document.getElementById('t-status').innerText = "TASK_COMPLETED";
-                }
-                if(h.task_name === 'Node ID Sync') {
-                    document.getElementById('w-claim-btn').disabled = true;
-                    document.getElementById('w-status').innerText = "TASK_COMPLETED";
-                }
-                if(h.task_name === 'Branding Protocol') {
-                    document.getElementById('b-claim-btn').disabled = true;
-                    document.getElementById('b-status').innerText = "TASK_COMPLETED";
-                }
-
+                if(new Date(h.completed_at).toDateString() === today) todaySum += h.points;
+                if(h.task_name === 'Twitter Follow') document.getElementById('t-claim-btn').disabled = true;
+                if(h.task_name === 'Node ID Sync') document.getElementById('w-claim-btn').disabled = true;
+                if(h.task_name === 'Branding Protocol') document.getElementById('b-claim-btn').disabled = true;
                 return `<div class="lb-item" style="font-size:12px;"><span>${h.task_name}</span><b style="color:var(--neon-main);">+${h.points}</b></div>`;
             }).join('') || '<p style="color:#555; font-size:12px;">EMPTY_LOG_FILE</p>';
             document.getElementById('t-pts').innerText = todaySum;
         }
 
         function updateCountdown() {
-            const btn = document.getElementById('c-btn');
-            const lbl = document.getElementById('claim-timer');
+            const btn = document.getElementById('c-btn'); const lbl = document.getElementById('claim-timer');
             if(!user.wallet_address) { lbl.innerText = "PLEASE_CONNECT_WALLET_FIRST"; btn.disabled = true; return; }
             if(!user.last_checkin) { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; return; }
-            const next = new Date(user.last_checkin).getTime() + 86400000;
-            const diff = next - Date.now();
+            const diff = (new Date(user.last_checkin).getTime() + 86400000) - Date.now();
             if(diff > 0) {
-                const h = Math.floor(diff/3600000);
-                const m = Math.floor((diff%3600000)/60000);
-                lbl.innerText = `NEXT SYNC: ${h}h ${m}m`;
+                lbl.innerText = `NEXT SYNC: ${Math.floor(diff/3600000)}h ${Math.floor((diff%3600000)/60000)}m`;
                 btn.disabled = true;
             } else { lbl.innerText = "READY_TO_SYNC"; btn.disabled = false; }
         }
 
         async function claimDaily() {
             if(!user.wallet_address) return;
-            const { error } = await _supabase.from('profiles').update({ 
-                balance: user.balance + 100, 
-                streak: (user.streak || 0) + 1, 
-                last_checkin: new Date().toISOString() 
-            }).eq('id', user.id);
-            if(!error) {
-                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]);
-                location.reload();
-            }
+            const { error } = await _supabase.from('profiles').update({ balance: user.balance + 100, streak: (user.streak || 0) + 1, last_checkin: new Date().toISOString() }).eq('id', user.id);
+            if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Daily Sync', points: 100 }]); location.reload(); }
         }
 
-        function enableTwitterClaim() {
-            const btn = document.getElementById('t-claim-btn');
-            if(document.getElementById('t-status').innerText !== "TASK_COMPLETED") {
-                btn.disabled = false;
-                btn.style.background = "var(--neon-main)";
-            }
-        }
-
+        function enableTwitterClaim() { const btn = document.getElementById('t-claim-btn'); btn.disabled = false; btn.style.background = "var(--neon-main)"; }
         async function claimTwitter() {
-            if(!user.wallet_address) { alert("Connect Wallet first!"); return; }
             const { error } = await _supabase.from('profiles').update({ balance: user.balance + 300 }).eq('id', user.id);
-            if(!error) {
-                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 300 }]);
-                location.reload();
-            }
+            if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Twitter Follow', points: 300 }]); location.reload(); }
         }
 
         async function claimWalletTask() {
-            if(!user.wallet_address) { alert("Connect Wallet First!"); return; }
+            if(!user.wallet_address) return;
             const { error } = await _supabase.from('profiles').update({ balance: user.balance + 1000 }).eq('id', user.id);
-            if(!error) {
-                await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Node ID Sync', points: 1000 }]);
-                location.reload();
-            }
+            if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Node ID Sync', points: 1000 }]); location.reload(); }
         }
 
         async function claimBioTask() {
-            let check = confirm("Have you added '⚡ LAST' to your Bio?");
-            if(check) {
+            if(confirm("Verified '⚡ LAST' in Bio?")) {
                 const { error } = await _supabase.from('profiles').update({ balance: user.balance + 500 }).eq('id', user.id);
-                if(!error) {
-                    await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Branding Protocol', points: 500 }]);
-                    location.reload();
-                }
+                if(!error) { await _supabase.from('task_history').insert([{ user_id: user.id, task_name: 'Branding Protocol', points: 500 }]); location.reload(); }
             }
         }
 
         async function handleWalletClick() {
             if(window.ethereum) {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                await _supabase.from('profiles').update({ wallet_address: accounts[0] }).eq('id', user.id);
-                location.reload();
-            } else { alert("Please install MetaMask!"); }
+                await _supabase.from('profiles').update({ wallet_address: accounts[0] }).eq('id', user.id); location.reload();
+            } else { alert("Install MetaMask!"); }
         }
 
         function calculateRank() {
-            const pts = user.balance;
-            const refs = globalRefs;
+            const pts = user.balance; const refs = globalRefs;
             document.querySelectorAll('.archive-card').forEach(c => c.classList.remove('unlocked'));
             document.getElementById('arc-ghost').classList.add('unlocked');
             let rank = { name: "NEURAL_GHOST", class: "rank-ghost" };
@@ -740,8 +662,7 @@
 
         async function fetchRefCount() {
             const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', user.id);
-            globalRefs = count || 0;
-            document.getElementById('ref-count').innerText = `${globalRefs} NODES`;
+            globalRefs = count || 0; document.getElementById('ref-count').innerText = `${globalRefs} NODES`;
         }
 
         function switchTab(id, title) {
@@ -751,11 +672,7 @@
             document.getElementById('sidebar').classList.remove('active');
         }
 
-        function copyRefLink() {
-            navigator.clipboard.writeText(`${window.location.origin}/?ref=${user.id}`);
-            alert("Invite link copied!");
-        }
-
+        function copyRefLink() { navigator.clipboard.writeText(`${window.location.origin}/?ref=${user.id}`); alert("Link copied!"); }
         async function logout() { await _supabase.auth.signOut(); location.reload(); }
         window.onload = init;
     </script>
